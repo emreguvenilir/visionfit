@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VisionFit</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #1f2b50;
+            color: white;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #2473ff;
+            padding: 20px;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+        }
+        .logo span {
+            color: lightblue;
+        }
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+        }
+        nav ul li {
+            display: inline;
+        }
+        nav ul li a {
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+        }
+        .sign-in {
+            background-color: #28a745;
+            padding: 10px 20px;
+            border-radius: 5px;
+        }
+        .hero {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 50px;
+            text-align: left;
+        }
+        .text h1 {
+            font-size: 32px;
+            max-width: 500px;
+        }
+        .cta-button {
+            display: inline-block;
+            margin-top: 20px;
+            background-color: #28a745;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .hero-image img {
+            max-width: 400px;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">VISION<span>FIT</span></div>
+        <nav>
+            <ul>
+                <li><a href="#">OUR MISSION</a></li>
+                <li><a href="#">OUR TEAM</a></li>
+                <li><a href="#" class="sign-in">SIGN IN</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section class="hero">
+            <div class="text">
+                <h1>Enhance Your Athletic Performance With Computer Vision</h1>
+                <a href="#" class="cta-button">SIGN IN</a>
+            </div>
+            <div class="hero-image">
+                <img src="muscular-man.png" alt="Athlete" />
+            </div>
+        </section>
+    </main>
+</body>
+</html>
