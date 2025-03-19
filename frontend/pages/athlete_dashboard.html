@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VisionFit-dash</title>
+    <title>VisionFit-ath-dash</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inknut+Antiqua:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -96,12 +96,14 @@
             justify-content: center;
             align-items: center;
             overflow-x: auto; /* Enables horizontal scrolling */
+            overflow-y: auto;
             width: 100%; /* Ensure container takes up the full width */
         }
 
         .table-wrapper {
             width: 100%;
             overflow-x: auto; /* Allows the table to scroll horizontally */
+            overflow-y: auto;
         }
 
         .table-container table {
@@ -150,14 +152,14 @@
         <div class="logo">VISION<span>FIT</span></div>
         <nav>
             <ul>
-                <li><a href="#">OUR MISSION IS AWESOME</a></li>
+                <li><a href="#">OUR MISSION</a></li>
                 <li><a href="#">OUR TEAM</a></li>
                 <li><a href="#" class="logout">LOGOUT</a></li>
             </ul>
         </nav>
     </header>
     <main>
-        <div class="sidebar">
+        <div id="liftHistory" class="sidebar">
             <h3>HISTORY</h3>
             <a><div class="cell">data</div></a>
             <a><div class="cell">data</div></a>
