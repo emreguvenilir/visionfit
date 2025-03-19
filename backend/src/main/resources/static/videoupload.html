@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VisionFit - Upload</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inknut+Antiqua:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Inknut Antiqua', serif;
+            background-color: #1f2b50;
+            color: white;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #2473ff;
+            padding: 20px;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+        }
+        .logo span {
+            color: lightblue;
+        }
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+        }
+        nav ul li {
+            display: inline;
+        }
+        nav ul li a {
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+        }
+        .logout {
+            background-color: #c0392b;
+            padding: 10px 20px;
+            border-radius: 5px;
+        }
+        .upload-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 50px;
+            text-align: left;
+        }
+        .text h1 {
+            font-size: 28px;
+        }
+        .upload-box {
+            width: 400px;
+            height: 250px;
+            background-color: wheat;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+        .upload-box img {
+            width: 50px;
+            height: 50px;
+        }
+        .athlete-image img {
+            max-width: 1500px;
+            height: 600px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">VISION<span>FIT</span></div>
+        <nav>
+            <ul>
+                <li><a href="#">OUR MISSION</a></li>
+                <li><a href="#">OUR TEAM</a></li>
+                <li><a href="#" class="logout">LOGOUT</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section class="upload-container">
+            <div class="athlete-image">
+                <img src="http://localhost:8080/VideoUploadImage.png" style="margin-top: 10px; padding-top: 5px; margin-left: 150px;" alt="Athlete">
+            </div>
+            <div class="text" style="margin-right: 180px">
+                <h1 style="text-align: center;">One Step Closer to Success!</h1>
+                <div class="upload-box" style="margin-left: 20px; text-align: center;">
+                    <form action="/action_page.php" method="post" enctype="multipart/form-data">
+                        <label for="myFile" style="display: inline-block; padding: 12px 20px; cursor: pointer; background-color: gray; color: white; border-radius: 30px; font-size: 16px; font-family: Arial, sans-serif; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: background-color 0.3s ease;">
+                            <img src="https://cdn-icons-png.flaticon.com/512/16/16490.png" alt="Upload Icon" style="width: 18px; height: 18px; vertical-align: middle; margin-right: 8px;"> 
+                            Choose a file
+                        </label>
+                        <input type="file" id="myFile" name="filename" style="display: none;">
+                        <input type="submit" value="Submit" style="display: inline-block; padding: 12px 20px; background-color: #2196F3; color: white; border: none; border-radius: 30px; font-size: 16px; font-family: Arial, sans-serif; margin-left: 10px; cursor: pointer; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); transition: background-color 0.3s ease;">
+                    </form>
+                </div>
+            </div>
+        </section>               
+    </main>
+</body>
+</html>
