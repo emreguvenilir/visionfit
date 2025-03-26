@@ -247,11 +247,93 @@
             </div>
         </div>
     
-        <div>
-          <button id="upload-btn">UPLOAD NEW LIFT</button>
-        </div>
+       
+       <!-- Modal Structure -->
+<div id="uploadModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.8);">
+    <div class="modal-content" style="background-color: #6c6c6c; margin: 5% auto; padding: 30px; border-radius: 15px; width: 60%; max-width: 700px; position: relative; box-shadow: 0 8px 16px rgba(0,0,0,0.3); text-align: center;">
+        
+        <!-- Close Button -->
+        <span class="close-btn" onclick="closeModal()" style="color: white; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+        
+        <h2 style="text-align: center; color: white; margin-bottom: 20px;">One Step Closer to Success!</h2>
+
+        <!-- Lift Form -->
+        <form id="liftForm" enctype="multipart/form-data" style="text-align: left; max-width: 500px; margin: 0 auto;">
+            
+            <!-- Lift Type Dropdown -->
+            <label for="liftType" style="color: white; font-weight: bold; margin-bottom: 5px; display: block;">Lift Type</label>
+            <select id="liftType" name="liftType" required style="width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 5px; border: none;">
+                <option value="Deadlift">Deadlift</option>
+                <option value="Bench Press">Bench Press</option>
+                <option value="Squat">Squat</option>
+            </select>
+
+            <!-- Weight Input with KG/Pounds -->
+            <label for="weight" style="color: white; font-weight: bold; margin-bottom: 5px; display: block;">Weight</label>
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <input type="number" id="weight" name="weight" required placeholder="Enter weight" style="flex: 1; padding: 10px; border-radius: 5px; border: none;">
+                <select id="unit" name="unit" required style="width: 100px; padding: 10px; border-radius: 5px; border: none;">
+                    <option value="KG">KG</option>
+                    <option value="Pounds">Pounds</option>
+                </select>
+            </div>
+
+            <!-- RPE Input -->
+            <label for="rpe" style="color: white; font-weight: bold; margin-bottom: 5px; display: block;">RPE</label>
+            <input type="number" id="rpe" name="rpe" min="1" max="10" required style="width: 96%; padding: 10px; margin-bottom: 15px; border-radius: 5px; border: none;">
+
+            <!-- File Upload -->
+            <label for="fileUpload" style="color: white; font-weight: bold; margin-bottom: 5px; display: block;">Upload Video/File</label>
+            <input type="file" id="fileUpload" name="fileUpload" required style="width: 96%; padding: 10px; margin-bottom: 20px; border-radius: 5px; background-color: #fff;">
+
+            <!-- Submit Button -->
+            <button type="submit" style="width: 100%; padding: 12px; background-color: #28a745; color: white; font-size: 16px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
+                Submit
+            </button>
+        </form>
+
+        <!-- Footer Note -->
+        <p style="color: white; text-align: center; font-size: 12px; margin-top: 15px;">
+            *RPE (Rate of Perceived Exertion) refers to a subjective scale, rated from 1-10, used to gauge how hard a set feels.
+        </p>
+    </div>
+</div>
+
+<!-- Button to Open Modal -->
+<button id="upload-btn" style="background-color: #28a745; color: white; padding: 12px 20px; font-size: 16px; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px;">
+    UPLOAD NEW LIFT
+</button>
+
+<script>
+    // Open Modal
+    document.getElementById('upload-btn').addEventListener('click', function() {
+        document.getElementById('uploadModal').style.display = 'block';
+    });
+
+    // Close Modal
+    function closeModal() {
+        document.getElementById('uploadModal').style.display = 'none';
+    }
+
+    // Close Modal if user clicks outside content
+    window.onclick = function(event) {
+        let modal = document.getElementById('uploadModal');
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    };
+
+    // Submit Form
+    document.getElementById('liftForm').onsubmit = function(event) {
+        event.preventDefault();
+        alert('Lift data submitted successfully!');
+        closeModal(); // Close the modal after submission
+    };
+</script>
+
     
         <!-- Bootstrap JS -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="backend/src/main/resources/static/athletedash.js"></script>
     </body>
 </html>
