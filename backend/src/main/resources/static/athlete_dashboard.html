@@ -271,8 +271,8 @@
             <!-- Weight Input with KG/Pounds -->
             <label for="weight" style="color: white; font-weight: bold; margin-bottom: 5px; display: block;">Weight</label>
             <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                <input type="number" id="weight" name="weight" required placeholder="Enter weight" style="flex: 1; padding: 10px; border-radius: 5px; border: none;">
-                <select id="unit" name="unit" required style="width: 100px; padding: 10px; border-radius: 5px; border: none;">
+                <input type="number" id="weight" name="weight" required placeholder="Enter weight" style="flex: 1; padding: 10px; border-radius: 5px; border: none;" min="1">
+                <select id="unit" name="unit" required style="width: 96px; padding: 10px; border-radius: 5px; border: none;">
                     <option value="KG">KG</option>
                     <option value="Pounds">Pounds</option>
                 </select>
@@ -284,7 +284,12 @@
 
             <!-- File Upload -->
             <label for="fileUpload" style="color: white; font-weight: bold; margin-bottom: 5px; display: block;">Upload Video/File</label>
-            <input type="file" id="fileUpload" name="fileUpload" required style="width: 96%; padding: 10px; margin-bottom: 20px; border-radius: 5px; background-color: #fff;">
+            <input type="file" id="fileUpload" name="fileUpload" required style="width: 96%; padding: 10px; margin-bottom: 10px; border-radius: 5px; background-color: #fff;" onchange="showFileName()">
+
+            <!-- File Preview -->
+            <div id="filePreview" style="color: #e0e0e0; font-size: 14px; margin-bottom: 20px; display: none;">
+                <strong>Selected File:</strong> <span id="fileName">No file chosen</span>
+            </div>
 
             <!-- Submit Button -->
             <button type="submit" style="width: 100%; padding: 12px; background-color: #28a745; color: white; font-size: 16px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
@@ -323,6 +328,21 @@
         }
     };
 
+    // Show Uploaded File Name
+    function showFileName() {
+        let fileInput = document.getElementById('fileUpload');
+        let fileName = fileInput.files.length > 0 ? fileInput.files[0].name : 'No file chosen';
+        
+        document.getElementById('fileName').innerText = fileName;
+        
+        // Show file preview section if a file is selected
+        if (fileInput.files.length > 0) {
+            document.getElementById('filePreview').style.display = 'block';
+        } else {
+            document.getElementById('filePreview').style.display = 'none';
+        }
+    }
+
     // Submit Form
     document.getElementById('liftForm').onsubmit = function(event) {
         event.preventDefault();
@@ -330,6 +350,7 @@
         closeModal(); // Close the modal after submission
     };
 </script>
+
 
     
         <!-- Bootstrap JS -->
