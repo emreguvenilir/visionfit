@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple API Fetch</title>
+</head>
+<body>
+    <h1>Simple API Fetch Example</h1>
+    <button id="fetch-data">Fetch Data</button>
+    <pre id="result">Click the button to fetch data...</pre>
+
+    <script>
+        document.getElementById("fetch-data").addEventListener("click", () => {
+            const apiUrl = "https://api.example.com/data"; // Replace with your actual API URL
+            const apiKey = "YOUR_API_KEY"; // Replace with your actual API key
+
+            fetch(apiUrl, {
+                method: "GET", // Use POST, PUT, DELETE as needed
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${apiKey}`, // Adjust if your API uses a different auth method
+                },
+            })
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+                    // Display data in the pre tag
+                    document.getElementById("result").innerText = JSON.stringify(data, null, 2);
+                })
+                .catch((error) => {
+                    console.error("Error fetching data:", error);
+                    document.getElementById("result").innerText = "Error fetching data. Check console for details.";
+                });
+        });
+    </script>
+</body>
+</html>
