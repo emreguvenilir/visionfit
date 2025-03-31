@@ -20,23 +20,5 @@ a2b014f52b0e443c86b506ec591aa8f7
 
  */
 
-document.addEventListener("DOMContentLoaded", () => {
-    const apiUrl = "https://api.example.com/data"; // Replace with the actual API URL
-    const apiKey = "YOUR_API_KEY"; // Replace with your API key, if needed
 
-    fetch(apiUrl, {
-        method: "GET", // or POST, PUT, DELETE, etc.
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${apiKey}` // Adjust for your API's auth method
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        // Display the data in the HTML
-        document.getElementById("result").innerText = JSON.stringify(data, null, 2);
-    })
-    .catch(error => {
-        console.error("Error fetching data:", error);
-    });
-});
+console.log("hi")
