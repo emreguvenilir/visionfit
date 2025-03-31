@@ -6,113 +6,82 @@
     <title>VisionFit - Diet Dashboard</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #1b2540;
+            font-family: Arial, sans-serif;
+            background-color: #1A1E33;
             color: white;
-            margin: 0;
-            padding: 0;
+            text-align: center;
+            padding: 20px;
         }
         .container {
-            width: 80%;
-            margin: 20px auto;
-            background: #2a3557;
+            max-width: 600px;
+            margin: auto;
+            background: #252A48;
             padding: 20px;
             border-radius: 10px;
         }
-        h1 {
-            color: #4da8da;
-            text-align: center;
-        }
-        label, select, input, button {
-            display: block;
-            margin: 10px 0;
-            width: 100%;
+        select, input, button {
+            width: 90%;
             padding: 10px;
+            margin: 10px 0;
             border-radius: 5px;
-        }
-        select, input {
-            background: #1b2540;
-            color: white;
-            border: 1px solid #4da8da;
+            border: none;
         }
         button {
-            background: #4da8da;
+            background-color: #008CFF;
             color: white;
-            border: none;
             cursor: pointer;
-        }
-        button:hover {
-            background: #3b7fa2;
         }
         #results {
             margin-top: 20px;
             padding: 10px;
-            background: #1b2540;
+            background: #333;
             border-radius: 5px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Diet Dashboard</h1>
-        <label for="user">Select User:</label>
-        <select id="user">
-            <option>John Doe</option>
-            <option>Jane Smith</option>
+        <h2>Diet Tracker</h2>
+        <input type="text" id="Username" placeholder="Choose a user name">
+        <input type="number" id="weight" placeholder="Enter weight">
+        <select id="weightUnit">
+            <option value="kg">kg</option>
+            <option value="lbs">lbs</option>
         </select>
-        
-        <label for="weight">Current Weight:</label>
-        <input type="number" id="weight" placeholder="Enter weight in kg or lbs">
-        
-        <label for="height">Height:</label>
-        <input type="number" id="height" placeholder="Enter height in cm">
-        
-        <label for="goal">Select Goal:</label>
+        <input type="number" id="height" placeholder="Enter height in feet">
         <select id="goal">
-            <option>Lose Weight</option>
-            <option>Build Muscle</option>
-            <option>Leaner Body</option>
-            <option>Build Power</option>
+            <option value="lose">Lose Weight</option>
+            <option value="muscle">Build Muscle</option>
+            <option value="lean">Leaner Body</option>
+            <option value="power">Build Power</option>
         </select>
-        
-        <label for="food">Search Food:</label>
-        <input type="text" id="food" placeholder="Enter food item">
-        <button onclick="fetchFoodData()">Search</button>
-        
+        <input type="text" id="food" placeholder="Search food">
+        <button onclick="fetchFoodData()">Get Calories</button>
         <div id="results"></div>
     </div>
-
     <script>
-        function fetchFoodData() {
+        async function fetchFoodData() {
             const foodItem = document.getElementById("food").value;
-            const API_KEY = "20d01056ddb348178df32763e5fe1874"; // Replace with your actual API key
-            
+            const API_KEY = "20d01056ddb348178df32763e5fe1874"; // Replace with your API key
             if (!foodItem) {
                 alert("Please enter a food item");
                 return;
             }
-    
-            fetch(`https://platform.fatsecret.com/rest//diet?food=${foodItem}`, {
+            const response = await fetch("https://platform.fatsecret.com/rest/foods/search/v1?search_expression=" + encodeURIComponent(foodItem) + "&format=json", {
                 method: "GET",
                 headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${API_KEY}` // For APIs requiring a Bearer Token
+                    "Authorization": `Bearer ${API_KEY}`
                 }
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("results").innerHTML = `
-                    <h3>Food: ${data.name}</h3>
-                    <p>Calories: ${data.calories}</p>
-                    <p>Protein: ${data.protein}g</p>
-                    <p>Carbs: ${data.carbs}g</p>
-                    <p>Fats: ${data.fats}g</p>
-                `;
-            })
-            .catch(error => {
-                console.error("Error fetching food data:", error);
-                document.getElementById("results").innerText = "Error retrieving data.";
             });
+            const data = await response.json();
+            if (data.foods && data.foods.food) {
+                const food = Array.isArray(data.foods.food) ? data.foods.food[0] : data.foods.food;
+                document.getElementById("results").innerHTML = `<h3>${food.food_name}</h3>
+                <p>${food.food_description}</p>
+                <a href="${food.food_url}" target="_blank">More Info</a>`;
+            } else {
+                document.getElementById("results").innerText = "No results found";
+            }
         }
     </script>
 </body>
