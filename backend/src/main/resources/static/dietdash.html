@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Diet Page - Vision Fit</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
         body { font-family: Arial, sans-serif; display: flex; justify-content: space-between; padding: 20px; }
         .modal { width: 30%; padding: 20px; background: #f4f4f4; border-radius: 10px; }
@@ -43,79 +42,38 @@
     </div>
 
     <script>
-        const consumerKey = "20d01056ddb348178df32763e5fe1874";
-        const consumerSecret = "a2b014f52b0e443c86b506ec591aa8f7";
-
-        function generateOAuthParams() {
-            return {
-                oauth_consumer_key: consumerKey,
-                oauth_nonce: Math.random().toString(36).substring(2),
-                oauth_signature_method: "HMAC-SHA1",
-                oauth_timestamp: Math.floor(Date.now() / 1000),
-                oauth_version: "1.0"
-            };
-        }
-
-        function generateSignature(baseString, key) {
-            return CryptoJS.HmacSHA1(baseString, key).toString(CryptoJS.enc.Base64);
-        }
+        const API_KEY = "rYzH1pB46F9BsHel1beq4w==2dMCoBMLix22FUBM";
 
         async function searchFood(event) {
             if (event.key !== 'Enter') return;
             const query = document.getElementById("search-bar").value;
-            const url = "https://platform.fatsecret.com/rest/server.api";
-            
-            const params = generateOAuthParams();
-            params.method = "foods.search";
-            params.search_expression = query;
-            params.format = "json";
-            
-            const baseString = `POST&${encodeURIComponent(url)}&` + 
-                encodeURIComponent(Object.keys(params).sort().map(k => `${k}=${params[k]}`).join("&"));
-            
-            params.oauth_signature = generateSignature(baseString, consumerSecret + "&");
-            
-            const formBody = new URLSearchParams(params).toString();
-            const response = await fetch(url, {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: formBody
-            });
-            
-            const data = await response.json();
-            displayResults(data);
+            const url = `https://api.calorieninjas.com/v1/nutrition?query=${encodeURIComponent(query)}`;
+
+            try {
+                const response = await fetch(url, {
+                    method: "GET",
+                    headers: { "X-Api-Key": API_KEY, "Content-Type": "application/json" }
+                });
+                if (!response.ok) throw new Error("API request failed");
+                const data = await response.json();
+                displayResults(data);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
         }
 
-        async function getFoodDetails(foodId) {
-            const url = "https://platform.fatsecret.com/rest/food/v4";
-            let params = generateOAuthParams();
-            params.food_id = foodId;
-
-            const baseString = `GET&${encodeURIComponent(url)}&` + 
-                encodeURIComponent(Object.keys(params).sort().map(k => `${k}=${params[k]}`).join("&"));
-
-            params.oauth_signature = generateSignature(baseString, consumerSecret + "&");
-
-            const queryString = new URLSearchParams(params).toString();
-            const response = await fetch(`${url}?${queryString}`, {
-                method: "GET",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" }
-            });
-
-            const data = await response.json();
-            console.log(data);
-        }
-        
         function displayResults(data) {
             const resultsDiv = document.getElementById("results");
             resultsDiv.innerHTML = "";
-            const foods = data.foods.food;
             
-            foods.forEach(food => {
+            data.items.forEach(item => {
                 const div = document.createElement("div");
                 div.classList.add("food-result");
-                div.innerHTML = `<strong>${food.food_name}</strong><br>${food.food_description}`;
-                div.onclick = () => getFoodDetails(food.food_id);
+                div.innerHTML = `<strong>${item.name}</strong><br>
+                    Calories: ${item.calories} kcal<br>
+                    Protein: ${item.protein_g} g<br>
+                    Carbs: ${item.carbohydrates_total_g} g<br>
+                    Fat: ${item.fat_total_g} g`;
                 resultsDiv.appendChild(div);
             });
         }
