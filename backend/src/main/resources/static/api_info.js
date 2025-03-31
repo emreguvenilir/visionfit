@@ -22,7 +22,7 @@ a2b014f52b0e443c86b506ec591aa8f7
 
 document.addEventListener("DOMContentLoaded", () => {
     const apiUrl = "https://api.example.com/data"; // Replace with the actual API URL
-    const apiKey = "YOUR_API_KEY"; // Replace with your API key, if needed
+    const apiKey = "20d01056ddb348178df32763e5fe1874"; // Replace with your API key, if needed
 
     fetch(apiUrl, {
         method: "GET", // or POST, PUT, DELETE, etc.
