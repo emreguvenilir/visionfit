@@ -3,18 +3,12 @@
         document.getElementById('uploadModal').style.display = 'block';
     });
 
-    // Close Modal
-    function closeModal() {
-        document.getElementById('uploadModal').style.display = 'none';
-    }
-
-    // Close Modal if user clicks outside content
-    window.onclick = function(event) {
-        let modal = document.getElementById('uploadModal');
-        if (event.target === modal) {
-            modal.style.display = 'none';
+    $(window).on('click', function (event) {
+        //let $modal = $('#uploadModal');
+        if (event.target === $modal[0]) {
+            $('#uploadModal').hide();
         }
-    };
+    });
 
     // Submit Form
     document.getElementById('liftForm').onsubmit = function(event) {
