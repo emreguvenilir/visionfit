@@ -17,6 +17,8 @@ min_speed_threshold = 0.3  # Ignore background twitching
 video_path = r"C:\Users\eguve\OneDrive\Desktop\VisionFit\backend\src\main\python\DLTest.MP4"
 cap = cv2.VideoCapture(video_path)
 
+fps = cap.get(cv2.CAP_PROP_FPS)
+
 if not cap.isOpened():
     print("Error: Cannot open video file.")
     exit()
@@ -74,5 +76,6 @@ if speed_readings:
     print(f"\n=== LIFT SUMMARY ===")
     print(f"Max speed: {max_speed:.2f} MPH")
     print(f"Avg speed (above {min_speed_threshold} MPH): {sum(speed_readings)/len(speed_readings):.2f} MPH")
+    print(f"FPS: {fps:.2f}")
 else:
     print("No significant motion detected.")
