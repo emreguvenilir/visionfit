@@ -43,12 +43,21 @@
     </div>
 
     <script>
-        const consumerKey = "YOUR_CONSUMER_KEY";
-        const consumerSecret = "YOUR_CONSUMER_SECRET";
-        
-        function generateSignature(params) {
-            const baseString = Object.keys(params).sort().map(k => `${k}=${encodeURIComponent(params[k])}`).join('&');
-            return CryptoJS.HmacSHA1(baseString, consumerSecret + "&").toString(CryptoJS.enc.Base64);
+        const consumerKey = "20d01056ddb348178df32763e5fe1874";
+        const consumerSecret = "a2b014f52b0e443c86b506ec591aa8f7";
+
+        function generateOAuthParams() {
+            return {
+                oauth_consumer_key: consumerKey,
+                oauth_nonce: Math.random().toString(36).substring(2),
+                oauth_signature_method: "HMAC-SHA1",
+                oauth_timestamp: Math.floor(Date.now() / 1000),
+                oauth_version: "1.0"
+            };
+        }
+
+        function generateSignature(baseString, key) {
+            return CryptoJS.HmacSHA1(baseString, key).toString(CryptoJS.enc.Base64);
         }
 
         async function searchFood(event) {
@@ -56,18 +65,15 @@
             const query = document.getElementById("search-bar").value;
             const url = "https://platform.fatsecret.com/rest/server.api";
             
-            const params = {
-                method: "foods.search",
-                search_expression: query,
-                format: "json",
-                oauth_consumer_key: consumerKey,
-                oauth_nonce: Math.random().toString(36).substring(2),
-                oauth_signature_method: "HMAC-SHA1",
-                oauth_timestamp: Math.floor(Date.now() / 1000),
-                oauth_version: "1.0"
-            };
+            const params = generateOAuthParams();
+            params.method = "foods.search";
+            params.search_expression = query;
+            params.format = "json";
             
-            params.oauth_signature = generateSignature(params);
+            const baseString = `POST&${encodeURIComponent(url)}&` + 
+                encodeURIComponent(Object.keys(params).sort().map(k => `${k}=${params[k]}`).join("&"));
+            
+            params.oauth_signature = generateSignature(baseString, consumerSecret + "&");
             
             const formBody = new URLSearchParams(params).toString();
             const response = await fetch(url, {
@@ -79,6 +85,26 @@
             const data = await response.json();
             displayResults(data);
         }
+
+        async function getFoodDetails(foodId) {
+            const url = "https://platform.fatsecret.com/rest/food/v4";
+            let params = generateOAuthParams();
+            params.food_id = foodId;
+
+            const baseString = `GET&${encodeURIComponent(url)}&` + 
+                encodeURIComponent(Object.keys(params).sort().map(k => `${k}=${params[k]}`).join("&"));
+
+            params.oauth_signature = generateSignature(baseString, consumerSecret + "&");
+
+            const queryString = new URLSearchParams(params).toString();
+            const response = await fetch(`${url}?${queryString}`, {
+                method: "GET",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" }
+            });
+
+            const data = await response.json();
+            console.log(data);
+        }
         
         function displayResults(data) {
             const resultsDiv = document.getElementById("results");
@@ -89,6 +115,7 @@
                 const div = document.createElement("div");
                 div.classList.add("food-result");
                 div.innerHTML = `<strong>${food.food_name}</strong><br>${food.food_description}`;
+                div.onclick = () => getFoodDetails(food.food_id);
                 resultsDiv.appendChild(div);
             });
         }
