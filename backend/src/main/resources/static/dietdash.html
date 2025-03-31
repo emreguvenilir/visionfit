@@ -1,7 +1,119 @@
-<! -- yes -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Dashboard</title>
-    <link rel="stylesheet" type="text/css" href="css/dietdash.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VisionFit - Diet Dashboard</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #1b2540;
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            background: #2a3557;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        h1 {
+            color: #4da8da;
+            text-align: center;
+        }
+        label, select, input, button {
+            display: block;
+            margin: 10px 0;
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        select, input {
+            background: #1b2540;
+            color: white;
+            border: 1px solid #4da8da;
+        }
+        button {
+            background: #4da8da;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #3b7fa2;
+        }
+        #results {
+            margin-top: 20px;
+            padding: 10px;
+            background: #1b2540;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Diet Dashboard</h1>
+        <label for="user">Select User:</label>
+        <select id="user">
+            <option>John Doe</option>
+            <option>Jane Smith</option>
+        </select>
+        
+        <label for="weight">Current Weight:</label>
+        <input type="number" id="weight" placeholder="Enter weight in kg or lbs">
+        
+        <label for="height">Height:</label>
+        <input type="number" id="height" placeholder="Enter height in cm">
+        
+        <label for="goal">Select Goal:</label>
+        <select id="goal">
+            <option>Lose Weight</option>
+            <option>Build Muscle</option>
+            <option>Leaner Body</option>
+            <option>Build Power</option>
+        </select>
+        
+        <label for="food">Search Food:</label>
+        <input type="text" id="food" placeholder="Enter food item">
+        <button onclick="fetchFoodData()">Search</button>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function fetchFoodData() {
+            const foodItem = document.getElementById("food").value;
+            const API_KEY = "20d01056ddb348178df32763e5fe1874"; // Replace with your actual API key
+            
+            if (!foodItem) {
+                alert("Please enter a food item");
+                return;
+            }
+    
+            fetch(`https://api.example.com/diet?food=${foodItem}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${API_KEY}` // For APIs requiring a Bearer Token
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("results").innerHTML = `
+                    <h3>Food: ${data.name}</h3>
+                    <p>Calories: ${data.calories}</p>
+                    <p>Protein: ${data.protein}g</p>
+                    <p>Carbs: ${data.carbs}g</p>
+                    <p>Fats: ${data.fats}g</p>
+                `;
+            })
+            .catch(error => {
+                console.error("Error fetching food data:", error);
+                document.getElementById("results").innerText = "Error retrieving data.";
+            });
+        }
+    </script>
+</body>
 </html>
