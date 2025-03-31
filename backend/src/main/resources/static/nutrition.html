@@ -3,32 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure API Fetch</title>
+    <title>VisionFit - Diet Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1A1E33;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: #252A48;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        select, input, button {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: none;
+        }
+        button {
+            background-color: #008CFF;
+            color: white;
+            cursor: pointer;
+        }
+        #results {
+            margin-top: 20px;
+            padding: 10px;
+            background: #333;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Secure API Fetch Example</h1>
-    <button id="fetch-data">Fetch Data</button>
-    <pre id="result">Click the button to fetch data...</pre>
+    <div class="container">
+        <h2>Diet Dashboard</h2>
+        <input type="text" id="Username" placeholder="Choose a user name">
+        <input type="number" id="weight" placeholder="Enter weight">
+        <select id="weightUnit">
+            <option value="kg">kg</option>
+            <option value="lbs">lbs</option>
+        </select>
+        <input type="number" id="height" placeholder="Enter height in feet">
+        <select id="goal">
+            <option value="lose">Lose Weight</option>
+            <option value="muscle">Build Muscle</option>
+            <option value="lean">Leaner Body</option>
+            <option value="power">Build Power</option>
+        </select>
+        <input type="text" id="food" placeholder="Search food">
+        <button onclick="fetchFoodData()">Get Calories</button>
+        <div id="results"></div>
+    </div>
 
     <script>
-        document.getElementById("fetch-data").addEventListener("click", () => {
-            fetch('http://localhost:3000/api/resource') // Call the local server
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! Status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // Display data in the pre tag
-                    document.getElementById("result").innerText = JSON.stringify(data, null, 2);
-                })
-                .catch(error => {
-                    console.error("Error fetching data:", error);
-                    document.getElementById("result").innerText = "Error fetching data. Check console for details.";
-                });
-        });
+        async function fetchFoodData() {
+            const foodItem = document.getElementById("food").value;
+            if (!foodItem) {
+                alert("Please enter a food item");
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:3000/api/food?food=${encodeURIComponent(foodItem)}`);
+                if (!response.ok) {
+                    throw new Error("Failed to fetch data");
+                }
+                const data = await response.json();
+
+                if (data.foods && data.foods.food) {
+                    const food = Array.isArray(data.foods.food) ? data.foods.food[0] : data.foods.food;
+                    document.getElementById("results").innerHTML = `
+                        <h3>${food.food_name}</h3>
+                        <p>${food.food_description}</p>
+                        <a href="${food.food_url}" target="_blank">More Info</a>`;
+                } else {
+                    document.getElementById("results").innerText = "No results found";
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                document.getElementById("results").innerText = "Error fetching data. Try again.";
+            }
+        }
     </script>
 </body>
 </html>
-
