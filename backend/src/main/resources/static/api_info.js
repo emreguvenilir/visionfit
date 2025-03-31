@@ -20,11 +20,3 @@ a2b014f52b0e443c86b506ec591aa8f7
 
  */
 
-<<<<<<< HEAD
-document.addEventListener("DOMContentLoaded", () => {
-    const apiUrl = "https://api.example.com/data"; // Replace with the actual API URL
-    const apiKey = "20d01056ddb348178df32763e5fe1874"; // Replace with your API key, if needed
-=======
->>>>>>> 85e8f7f8d75b2d25a0f79c1e7bd1f2e11b403499
-
-console.log("hi")
