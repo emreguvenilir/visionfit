@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inknut+Antiqua:wght@700&display=swap');
+
+        body {
+            margin: 0;
+            font-family: 'Georgia', serif;
+            background-color: #1f2a4a;
+        }
+        .navbar {
+            background-color: #3378f5;
+            overflow: hidden;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar h1 {
+            margin: 0;
+            color: white;
+            font-family: 'Inknut Antiqua', serif;
+            letter-spacing: 3px;
+            font-weight: bold;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 18px;
+            font-family: 'Inknut Antiqua', serif;
+            font-weight: bold;
+        }
+        .sign-in {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 18px;
+            font-family: 'Inknut Antiqua', serif;
+            font-weight: bold;
+        }
+        .container {
+            text-align: center;
+            padding: 50px 20px;
+        }
+        .team {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            margin-top: 30px;
+        }
+        .member {
+            text-align: center;
+            color: white;
+        }
+        .member img {
+            width: 140px;
+            height: 180px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        .member h3 {
+            margin: 5px 0;
+            font-size: 18px;
+        }
+        .mission {
+            margin-top: 40px;
+            color: white;
+            font-size: 22px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.8;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <h1>VISIONFIT</h1>
+        <div class="nav-links">
+            <a href="#">Athlete Dash</a>
+            <a href="#">Trainer Dash</a>
+            <a href="#">Diet Dash</a>
+            <a href="#" class="sign-in">SIGN IN</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+
+        <!-- Team Section -->
+        <div class="team">
+            <div class="member">
+                <img src="/Users/juliantseng/Documents/GitHub/visionfit/backend/src/main/resources/static/Emre.png" alt="Emre Guvenilir">
+                <h3>Emre Guvenilir ‘25</h3>
+            </div>
+            <div class="member">
+                <img src="/Users/juliantseng/Documents/GitHub/visionfit/backend/src/main/resources/static/Harsh.png" alt="Harsh Desai">
+                <h3>Harsh Desai ‘27</h3>
+            </div>
+            <div class="member">
+                <img src="/Users/juliantseng/Documents/GitHub/visionfit/backend/src/main/resources/static/Bray.png" alt="Jack Bray">
+                <h3>Jack Bray ‘27</h3>
+            </div>
+            <div class="member">
+                <img src="/Users/juliantseng/Documents/GitHub/visionfit/backend/src/main/resources/static/Julian.png" alt="Julian Tseng">
+                <h3>Julian Tseng ‘27</h3>
+            </div>
+        </div>
+
+        <!-- Mission Statement -->
+        <div class="mission">
+            We are a team of four students from Davidson College, whose mission is to empower fitness enthusiasts and
+            athletes by providing an intelligent, computer vision-powered platform that delivers precise and actionable
+            feedback on workout performance. VisionFit analyzes video input to assess barbell speed, velocity, form,
+            fatigue, and injury risk, with a dedicated focus on the three fundamental lifts: squat, bench, and deadlift.
+            Beyond movement analysis, VisionFit offers personalized diet recommendations, ensuring a comprehensive approach
+            to performance optimization and injury prevention. Additionally, we aim to enhance trainer-athlete collaboration
+            by enabling trainers to review and refine their athletes' performances, fostering continuous improvement and
+            excellence.
+        </div>
+    </div>
+
+</body>
+</html>
