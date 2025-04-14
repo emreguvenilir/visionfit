@@ -9,47 +9,47 @@
             font-family: 'Inknut Antiqua', serif;
             background-color: #1f2a4a;
         }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #2473ff;
+            padding: 20px;
+        }
+
         .logo {
             font-size: 24px;
             font-weight: bold;
             color: white;
+            font-family: 'Inknut Antiqua', serif;
         }
+
         .logo span {
             color: lightblue;
         }
-        .navbar {
-            background-color: #3378f5;
-            overflow: hidden;
-            padding: 10px 20px;
+
+        nav ul {
+            list-style: none;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            gap: 20px;
+            margin-left: auto;
         }
-        .navbar h1 {
-            margin: 0;
-            color: white;
-            font-family: 'Inknut Antiqua', serif;
-            letter-spacing: 3px;
-            font-weight: bold;
-        }
-        .nav-links a {
-            color: white;
+
+        nav ul li a {
+            display: inline;
             text-decoration: none;
-            margin: 0 15px;
-            font-size: 18px;
-            font-family: 'Inknut Antiqua', serif;
+            color: white;
             font-weight: bold;
-        }
-        .log-out {
+            font-family: 'Inknut Antiqua', serif;
+            font-size: 18px;
+        }   
+
+        nav ul li a.logout {
             background-color: #ff5b5b;
-            color: white;
             padding: 10px 20px;
-            border-radius: 20px;
-            text-decoration: none;
-            font-size: 18px;
-            font-family: 'Inknut Antiqua', serif;
-            font-weight: bold;
+            border-radius: 5px;
         }
+
         .container {
             text-align: center;
             padding: 50px 20px;
@@ -88,15 +88,18 @@
 <body>
 
     <!-- Navigation Bar -->
-    <div class="navbar" id="navbar">
+    <header>
         <div class="logo">VISION<span>FIT</span></div>
-        <div class="nav-links" id="nav-links">
-            <a href="athlete_dashboard.html" id="athlete-dash">Athlete Dash</a>
-            <a href="trainerdash.html" id="trainer-dash">Trainer Dash</a>
-            <a href="dietdash.html" id="diet-dash">Diet Dash</a>
-            <a href="index.html" id="log-out" class="log-out">LOGOUT</a>
-        </div>
-    </div>
+        <nav>
+            <ul>
+                <li><a href="dietdash.html">Diet Dash</a></li>
+                <li><a href="trainerdash.html">Trainer Dash</a></li>
+                <li><a href="Mission_Team.html">Our Mission</a></li>
+                <li><a href="index.html" class="logout">LOGOUT</a></li>
+            </ul>
+        </nav>
+    </header>
+    
 
     <!-- Main Content -->
     <div class="container" id="main-container">
