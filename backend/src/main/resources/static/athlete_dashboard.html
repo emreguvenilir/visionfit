@@ -228,8 +228,11 @@
                 </select>
     
                 <!-- User Height Input -->
-                <label for="userHeight" style="color: white; font-weight: bold; margin-bottom: 5px; display: block;">Height (in feet)</label>
-                <input type="number" id="userHeight" name="userHeight" required placeholder="Enter height" style="width: 96%; padding: 10px; margin-bottom: 15px; border-radius: 5px; border: none;" min="1">
+                <label style="color: white; font-weight: bold; margin-bottom: 5px; display: block;">Height</label>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <input type="number" id="userHeightFeet" name="userHeightFeet" required placeholder="Feet" min="0" style="flex: 1; padding: 10px; border-radius: 5px; border: none;">
+                <input type="number" id="userHeightInches" name="userHeightInches" required placeholder="Inches" min="0" max="11" style="flex: 1; padding: 10px; border-radius: 5px; border: none;">
+                </div>
     
                 <!-- User Weight Input -->
                 <label for="userWeight" style="color: white; font-weight: bold; margin-bottom: 5px; display: block;">Weight</label>
