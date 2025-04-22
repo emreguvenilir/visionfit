@@ -88,7 +88,7 @@
       display: flex;
       flex-direction: column;
     }
-    #search-bar, #recipe-bar, #gemini-bar {
+    #search-bar, #gemini-bar {
       width: 100%;
       padding: 10px;
       font-size: 18px;
@@ -97,9 +97,10 @@
     }
     .food-result {
       margin-top: 15px;
-      padding: 10px;
+      padding: 15px;
       background: #f4f4f4;
-      border-radius: 3px;
+      border-radius: 5px;
+      width: 100%;
     }
     .food-result em {
       display: block;
@@ -110,21 +111,19 @@
     }
     h3 { color: white; }
     p { color: #f4f4f4; }
-    .gemini-container {
-      position: absolute;
-      bottom: 20px;
-      left: 20px;
-      width: 300px;
-      background: rgba(255, 255, 255, 0.1);
-      padding: 15px;
-      border-radius: 10px;
-    }
-    .gemini-container h3 {
-      margin-top: 0;
-    }
     #gemini-results {
-      max-height: 150px;
+      max-height: 300px;
       overflow-y: auto;
+    }
+    .submit-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #2473ff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -172,23 +171,18 @@
           <option value="lean">Get Leaner</option>
         </select>
       </div>
+      <button class="submit-btn" onclick="submitGoal()">Submit</button>
     </div>
 
-    <div class="search-container">
-      <h3>Search Food Item Below:</h3>
+    <div class="search-container" style="display: none;">
+      <h3>Get Nutrition information:</h3>
       <input type="text" id="search-bar" placeholder="Search for food..." onkeyup="searchFood(event)">
       <div id="results"></div>
 
-      <h3 style="margin-top: 40px;">Search Food Recipe Below:</h3>
-      <input type="text" id="recipe-bar" placeholder="Search for recipe..." onkeyup="searchRecipe(event)">
-      <div id="recipe-results"></div>
+      <h3 style="margin-top: 40px;">Analyze if the food matches your goal:</h3>
+      <input type="text" id="gemini-bar" placeholder="Enter food (select goal above)..." onkeyup="searchGemini(event)">
+      <div id="gemini-results"></div>
     </div>
-  </div>
-
-  <div class="gemini-container">
-    <h3>Analyze Food Benefits:</h3>
-    <input type="text" id="gemini-bar" placeholder="Enter food (select goal above)..." onkeyup="searchGemini(event)">
-    <div id="gemini-results"></div>
   </div>
 
   <script>
@@ -243,7 +237,7 @@
       try {
         const geminiResult = await analyzeFoodWithGemini(query, goal);
         displayGeminiResults([geminiResult]);
-        document.getElementById("gemini-bar").value = ""; // Clear input
+        document.getElementById("gemini-bar").value = "";
       } catch (error) {
         console.error("Error in Gemini search:", error);
         document.getElementById("gemini-results").innerHTML = "<p>Failed to analyze food.</p>";
@@ -259,11 +253,14 @@
           build: "building muscle",
           lean: "getting leaner"
         }[match])) : "an unspecified fitness goal";
-      const prompt = `Provide two short sentences about ${foodName}: 
-        1. Describe its primary nutritional benefit or characteristic (e.g., "Chicken: Great source of protein"). 
-        2. Evaluate its suitability for a user with the goal of ${goalText} (e.g., "Chicken is excellent for building muscle due to its high protein content").`;
+
+      const prompt = `Provide the following about ${foodName}:
+      1. A short sentence describing its main nutritional benefit.
+      2. A sentence evaluating its suitability for ${goalText}.
+      3. A simple recipe that includes ${foodName} with basic ingredients and steps.`;
+
       const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-      
+
       try {
         const response = await fetch(url, {
           method: "POST",
@@ -272,26 +269,23 @@
             contents: [{ parts: [{ text: prompt }] }]
           })
         });
-        if (!response.ok) {
-          throw new Error(`Gemini API request failed with status ${response.status}: ${response.statusText}`);
-        }
+        if (!response.ok) throw new Error(`Gemini API request failed: ${response.statusText}`);
         const data = await response.json();
-        if (!data.candidates || !data.candidates[0]?.content?.parts?.[0]?.text) {
-          throw new Error("Unexpected response structure from Gemini API");
-        }
         const text = data.candidates[0].content.parts[0].text;
-        const [benefit, suitability] = text.split('\n').filter(line => line.trim());
-        return { 
-          foodName, 
-          benefit: benefit || "Unable to analyze nutritional benefits.", 
-          suitability: suitability || `Unable to evaluate suitability for ${goalText}.`
+        const lines = text.split('\n').filter(line => line.trim());
+        return {
+          foodName,
+          benefit: lines[0] || "No benefit found.",
+          suitability: lines[1] || "No suitability analysis.",
+          recipe: lines.slice(2).join('<br>') || "No recipe provided."
         };
       } catch (error) {
-        console.error(`Error analyzing ${foodName} with Gemini:`, error.message);
-        return { 
-          foodName, 
-          benefit: "Unable to analyze nutritional benefits.", 
-          suitability: `Unable to evaluate suitability for ${goalText}.`
+        console.error(`Error analyzing ${foodName} with Gemini:`, error);
+        return {
+          foodName,
+          benefit: "Unable to analyze nutritional benefits.",
+          suitability: `Unable to evaluate suitability for ${goalText}.`,
+          recipe: "No recipe found."
         };
       }
     }
@@ -302,52 +296,24 @@
       geminiResults.forEach(result => {
         const div = document.createElement("div");
         div.classList.add("food-result");
-        div.innerHTML = `<strong>${result.foodName}</strong><br>
+        div.innerHTML = `
+          <strong>${result.foodName}</strong><br>
           <em>${result.benefit}</em><br>
-          <em>${result.suitability}</em>`;
+          <em>${result.suitability}</em><br>
+          <em><strong>Recipe:</strong><br>${result.recipe}</em>
+        `;
         resultsDiv.appendChild(div);
       });
     }
 
-    async function searchRecipe(event) {
-      if (event.key !== 'Enter') return;
-      const query = document.getElementById("recipe-bar").value.trim();
-      if (!query) return;
-
-      const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-      const apiUrl = `https://api.calorieninjas.com/v1/recipe?query=${encodeURIComponent(query)}`;
-      const fullUrl = proxyUrl + apiUrl;
-
-      try {
-        const response = await fetch(fullUrl, {
-          method: 'GET',
-          headers: { 'X-Api-Key': CALORIE_NINJAS_API_KEY }
-        });
-        if (!response.ok) throw new Error(`Recipe API request failed: ${response.statusText}`);
-        const data = await response.json();
-        displayRecipeResults(data);
-      } catch (error) {
-        console.error("Error fetching recipe data:", error);
-        document.getElementById("recipe-results").innerHTML = "<p>Failed to fetch recipe data.</p>";
+    function submitGoal() {
+      const goalInput = document.getElementById("goal");
+      const goal = goalInput.value.trim();
+      if (!goal) {
+        alert("Please enter a fitness goal before proceeding.");
+        return;
       }
-    }
-
-    function displayRecipeResults(data) {
-      const recipeResultDiv = document.getElementById("recipe-results");
-      recipeResultDiv.innerHTML = "";
-      if (data && data.length > 0) {
-        data.forEach(recipe => {
-          const div = document.createElement("div");
-          div.classList.add("food-result");
-          div.innerHTML = `<strong>${recipe.title}</strong><br>
-            Ingredients: ${recipe.ingredients}<br>
-            Servings: ${recipe.servings}<br>
-            Instructions: ${recipe.instructions || 'Not available'}`;
-          recipeResultDiv.appendChild(div);
-        });
-      } else {
-        recipeResultDiv.innerHTML = "<p>No recipes found.</p>";
-      }
+      document.querySelector('.search-container').style.display = 'block';
     }
   </script>
 </body>
