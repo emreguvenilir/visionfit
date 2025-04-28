@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VisionFit-dash</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="../../../frontend/css/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inknut+Antiqua:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -190,16 +190,15 @@
                             </tr>
                         </thead>
                         <tbody>
-                            
                             <tr>
-                                <td><div class="cell">...</div></td>
-                                <td><div class="cell">...</div></td>
-                                <td><div class="cell">...</div></td>
-                                <td><div class="cell">...</div></td>
-                                <td><div class="cell">...</div></td>
-                                <td><div class="cell">...</div></td>
-                                <td><div class="cell">...</div></td>
-                            </tr>
+                                <td><div class="cell" id="avgSpeedCell">...</div></td>
+                                <td><div class="cell" id="maxSpeedCell">...</div></td>
+                                <td><div class="cell" id="avgForcePowerCell">...</div></td>
+                                <td><div class="cell" id="consistencyScoreCell">...</div></td>
+                                <td><div class="cell" id="fatigueIndexCell">...</div></td>
+                                <td><div class="cell" id="timeUnderTensionCell">...</div></td>
+                                <td><div class="cell" id="velocityProfileCell">...</div></td>
+                            </tr>                            
                         </tbody>
                     </table>
                 </div>
@@ -217,7 +216,8 @@
             <h2 style="text-align: center; color: white; margin-bottom: 20px;">One Step Closer to Success!</h2>
     
             <!-- Lift Form -->
-            <form id="liftForm" enctype="multipart/form-data" style="text-align: left; max-width: 500px; margin: 0 auto;">
+            <form id="liftForm" action="http://127.0.0.1:5001/analyze_lift"
+            method="POST" enctype="multipart/form-data" style="text-align: left; max-width: 500px; margin: 0 auto;">
                 
                 <!-- Lift Type Dropdown -->
                 <label for="liftType" style="color: white; font-weight: bold; margin-bottom: 5px; display: block;">Lift Type</label>
@@ -292,53 +292,9 @@
     UPLOAD NEW LIFT
 </button>
 
-<script>
-// Open Modal
-document.getElementById('upload-btn').addEventListener('click', function() {
-    document.getElementById('uploadModal').style.display = 'block';
-    document.getElementById('upload-btn').style.display = 'none'; // Hide the button
-});
-
-// Close Modal
-function closeModal() {
-    document.getElementById('uploadModal').style.display = 'none';
-    document.getElementById('upload-btn').style.display = 'block'; // Show the button again
-}
-
-// Close Modal if user clicks outside content
-window.onclick = function(event) {
-    let modal = document.getElementById('uploadModal');
-    if (event.target === modal) {
-        modal.style.display = 'none';
-        document.getElementById('upload-btn').style.display = 'block'; // Show button when modal is closed
-    }
-};
-
-    // Show Uploaded File Name
-    function showFileName() {
-        let fileInput = document.getElementById('fileUpload');
-        let fileName = fileInput.files.length > 0 ? fileInput.files[0].name : 'No file chosen';
-        
-        document.getElementById('fileName').innerText = fileName;
-        
-        // Show file preview section if a file is selected
-        if (fileInput.files.length > 0) {
-            document.getElementById('filePreview').style.display = 'block';
-        } else {
-            document.getElementById('filePreview').style.display = 'none';
-        }
-    }
-
-    // Submit Form
-    document.getElementById('liftForm').onsubmit = function(event) {
-        event.preventDefault();
-        alert('Lift data submitted successfully!');
-        closeModal(); // Close the modal after submission
-    };
-</script>
 
         <!-- Bootstrap JS -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="backend/src/main/resources/static/athletedash.js"></script>
+        <script src="athletedash.js"></script>
     </body>
 </html>
