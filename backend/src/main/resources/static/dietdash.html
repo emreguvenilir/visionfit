@@ -87,33 +87,51 @@
       width: 50%;
       display: flex;
       flex-direction: column;
+      align-items: center;
+      padding-left: 10%;
     }
-    #search-bar, #gemini-bar {
-      width: 100%;
-      padding: 10px;
-      font-size: 18px;
+    #combined-search-bar {
+      width: 500px;
+      padding: 15px;
+      font-size: 20px;
       background-color: #f4f4f4;
-      margin-bottom: 10px;
+      margin: 20px auto;
+      border-radius: 8px;
+      border: 2px solid #2473ff;
+      box-sizing: border-box;
     }
     .food-result {
       margin-top: 15px;
-      padding: 15px;
+      padding: 20px;
       background: #f4f4f4;
       border-radius: 5px;
-      width: 100%;
+      width: 500px;
+      box-sizing: border-box;
     }
     .food-result em {
       display: block;
-      margin-top: 5px;
+      margin-top: 10px;
+    }
+    .food-result .nutrition, .food-result .analysis {
+      margin-bottom: 15px;
     }
     .modal h2 {
       margin-bottom: 30px;
     }
-    h3 { color: white; }
+    h3 { 
+      color: white; 
+      text-align: center;
+      width: 500px;
+      margin: 0 auto;
+    }
     p { color: #f4f4f4; }
-    #gemini-results {
-      max-height: 300px;
+    #combined-results {
+      max-height: 400px;
       overflow-y: auto;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     .submit-btn {
       margin-top: 20px;
@@ -129,8 +147,6 @@
       height: 38px;
       padding: 5px;
     }
-
-
   </style>
 </head>
 <body>
@@ -150,10 +166,6 @@
   <div class="content">
     <div class="modal">
       <h2>User Info</h2>
-      <div class="input-group">
-        <label for="username">Username:</label>
-        <input type="text" id="username" style="width: 230px;">
-      </div>
       <div class="input-group">
         <label for="weight">Current Weight:</label>
         <input type="number" id="weight" style="width: 180px;">
@@ -176,7 +188,7 @@
           <option value="lose">Lose Weight</option>
           <option value="gain">Gain Weight</option>
           <option value="maintain">Maintain Weight</option>
-          <option value="build">Build Muscle</option>
+           <option value="build">Build Muscle</option>
           <option value="lean">Get Leaner</option>
         </select>
       </div>
@@ -184,13 +196,9 @@
     </div>
 
     <div class="search-container" style="display: none;">
-      <h3>Get Nutrition information:</h3>
-      <input type="text" id="search-bar" placeholder="Search for food..." onkeyup="searchFood(event)">
-      <div id="results"></div>
-
-      <h3 style="margin-top: 40px;">Analyze if the food matches your goal:</h3>
-      <input type="text" id="gemini-bar" placeholder="Enter food (select goal above)..." onkeyup="searchGemini(event)">
-      <div id="gemini-results"></div>
+      <h3>Get Nutrition Information Related to Goal:</h3>
+      <input type="text" id="combined-search-bar" placeholder="Search for food nutrition and goal-based analysis...">
+      <div id="combined-results"></div>
     </div>
   </div>
 
@@ -198,59 +206,33 @@
     const CALORIE_NINJAS_API_KEY = "rYzH1pB46F9BsHel1beq4w==2dMCoBMLix22FUBM";
     const GEMINI_API_KEY = "AIzaSyChBpvxw6IeA8PgfIgHzR-6573XmHf3rmk";
 
-    async function searchFood(event) {
+    async function searchCombined(event) {
       if (event.key !== 'Enter') return;
-      const query = document.getElementById("search-bar").value.trim();
+      const query = document.getElementById("combined-search-bar").value.trim();
       if (!query) return;
 
+      document.getElementById("combined-results").innerHTML = "<p>Loading...</p>";
+      try {
+        const [calorieData, geminiResult] = await Promise.all([
+          fetchCalorieData(query),
+          analyzeFoodWithGemini(query, document.getElementById("goal").value || "unspecified")
+        ]);
+        displayCombinedResults(calorieData, [geminiResult]);
+      } catch (error) {
+        console.error("Error in combined search:", error);
+        document.getElementById("combined-results").innerHTML = "<p>Failed to fetch data.</p>";
+      }
+      document.getElementById("combined-search-bar").value = "";
+    }
+
+    async function fetchCalorieData(query) {
       const url = `https://api.calorieninjas.com/v1/nutrition?query=${encodeURIComponent(query)}`;
-      try {
-        const response = await fetch(url, {
-          method: "GET",
-          headers: { "X-Api-Key": CALORIE_NINJAS_API_KEY, "Content-Type": "application/json" }
-        });
-        if (!response.ok) throw new Error(`CalorieNinjas API request failed: ${response.statusText}`);
-        const data = await response.json();
-        displayFoodResults(data);
-      } catch (error) {
-        console.error("Error fetching food data:", error);
-        document.getElementById("results").innerHTML = "<p>Failed to fetch food data.</p>";
-      }
-    }
-
-    function displayFoodResults(data) {
-      const resultsDiv = document.getElementById("results");
-      resultsDiv.innerHTML = "";
-      if (data.items && data.items.length > 0) {
-        data.items.forEach(item => {
-          const div = document.createElement("div");
-          div.classList.add("food-result");
-          div.innerHTML = `<strong>${item.name}</strong><br>
-            Calories: ${item.calories} kcal<br>
-            Protein: ${item.protein_g} g<br>
-            Carbs: ${item.carbohydrates_total_g} g<br>
-            Fat: ${item.fat_total_g} g`;
-          resultsDiv.appendChild(div);
-        });
-      } else {
-        resultsDiv.innerHTML = "<p>No food items found.</p>";
-      }
-    }
-
-    async function searchGemini(event) {
-      if (event.key !== 'Enter') return;
-      const query = document.getElementById("gemini-bar").value.trim();
-      const goal = document.getElementById("goal").value || "unspecified";
-      if (!query) return;
-
-      try {
-        const geminiResult = await analyzeFoodWithGemini(query, goal);
-        displayGeminiResults([geminiResult]);
-        document.getElementById("gemini-bar").value = "";
-      } catch (error) {
-        console.error("Error in Gemini search:", error);
-        document.getElementById("gemini-results").innerHTML = "<p>Failed to analyze food.</p>";
-      }
+      const response = await fetch(url, {
+        method: "GET",
+        headers: { "X-Api-Key": CALORIE_NINJAS_API_KEY, "Content-Type": "application/json" }
+      });
+      if (!response.ok) throw new Error(`CalorieNinjas API request failed: ${response.statusText}`);
+      return await response.json();
     }
 
     async function analyzeFoodWithGemini(foodName, goal) {
@@ -299,20 +281,41 @@
       }
     }
 
-    function displayGeminiResults(geminiResults) {
-      const resultsDiv = document.getElementById("gemini-results");
+    function displayCombinedResults(calorieData, geminiResults) {
+      const resultsDiv = document.getElementById("combined-results");
       resultsDiv.innerHTML = "";
-      geminiResults.forEach(result => {
-        const div = document.createElement("div");
-        div.classList.add("food-result");
-        div.innerHTML = `
-          <strong>${result.foodName}</strong><br>
-          <em>${result.benefit}</em><br>
-          <em>${result.suitability}</em><br>
-          <em><strong>Recipe:</strong><br>${result.recipe}</em>
-        `;
-        resultsDiv.appendChild(div);
-      });
+
+      if (calorieData.items && calorieData.items.length > 0) {
+        calorieData.items.forEach((item, index) => {
+          const geminiResult = geminiResults[index] || {
+            foodName: item.name,
+            benefit: "No analysis available.",
+            suitability: "No suitability analysis.",
+            recipe: "No recipe provided."
+          };
+
+          const div = document.createElement("div");
+          div.classList.add("food-result");
+          div.innerHTML = `
+            <strong>${item.name}</strong>
+            <div class="nutrition">
+              <strong>Nutritional Breakdown:</strong><br>
+              Calories: ${item.calories} kcal<br>
+              Protein: ${item.protein_g} g<br>
+              Carbs: ${item.carbohydrates_total_g} g<br>
+              Fat: ${item.fat_total_g} g
+            </div>
+            <div class="analysis">
+              <em><strong>Nutritional Benefit:</strong> ${geminiResult.benefit}</em><br>
+              <em><strong>Suitability:</strong> ${geminiResult.suitability}</em><br>
+              <em><strong>Recipe:</strong><br>${geminiResult.recipe}</em>
+            </div>
+          `;
+          resultsDiv.appendChild(div);
+        });
+      } else {
+        resultsDiv.innerHTML = "<p>No food items found.</p>";
+      }
     }
 
     function submitGoal() {
@@ -324,6 +327,8 @@
       }
       document.querySelector('.search-container').style.display = 'block';
     }
+
+    document.getElementById("combined-search-bar").addEventListener("keyup", searchCombined);
   </script>
 </body>
 </html>
