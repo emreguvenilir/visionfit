@@ -62,9 +62,10 @@
       justify-content: space-between;
       width: 90%;
       margin-top: 20px;
+      gap: 20px;
     }
-    .modal {
-      width: 45%;
+    .modal, .search-container, .macro-tracker {
+      width: 33%;
       padding: 20px;
       background: #f4f4f4;
       border-radius: 10px;
@@ -84,19 +85,16 @@
       padding: 5px;
     }
     .search-container {
-      width: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
     }
     .search-box-wrapper {
-      width: 500px;
-      max-width: 90%;
+      width: 100%;
       display: flex;
       flex-direction: column;
-      align-items: flex-start;
-      margin-left: 24%;
+      align-items: center;
     }
     #combined-search-bar {
       width: 100%;
@@ -109,11 +107,12 @@
       box-sizing: border-box;
     }
     .food-result {
-      background: #f4f4f4;
+      background: #fff;
       border-radius: 5px;
       width: 100%;
       box-sizing: border-box;
-      padding: 20px;
+      padding: 15px;
+      margin-bottom: 10px;
     }
     .food-result em {
       display: block;
@@ -122,11 +121,11 @@
     .food-result .nutrition, .food-result .analysis {
       margin-bottom: 15px;
     }
-    .modal h2 {
+    .modal h2, .macro-tracker h2 {
       margin-bottom: 30px;
     }
     h3 { 
-      color: white;
+      color: black;
       text-align: center;
       margin-bottom: 10px;
     }
@@ -138,12 +137,11 @@
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      gap: 15px;
+      gap: 10px;
     }
-    .submit-btn {
-      margin-top: 20px;
-      padding: 10px 20px;
+    .submit-btn, .add-macros-btn {
+      margin-top: 10px;
+      padding: 8px 15px;
       background-color: #2473ff;
       color: white;
       border: none;
@@ -154,6 +152,23 @@
     #metric, #goal {
       height: 38px;
       padding: 5px;
+    }
+    .macro-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    .macro-table th, .macro-table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    .macro-table th {
+      background-color: #2473ff;
+      color: white;
+    }
+    .macro-table tr:nth-child(even) {
+      background-color: #f2f2f2;
     }
   </style>
 </head>
@@ -196,25 +211,79 @@
           <option value="lose">Lose Weight</option>
           <option value="gain">Gain Weight</option>
           <option value="maintain">Maintain Weight</option>
-           <option value="build">Build Muscle</option>
+          <option value="build">Build Muscle</option>
           <option value="lean">Get Leaner</option>
         </select>
       </div>
       <button class="submit-btn" onclick="submitGoal()">Submit</button>
     </div>
 
-    <div class="search-container" style="display: none;">
-      <h3>Get Nutrition Information Related to Goal:</h3>
+    <div class="search-container">
+      <h3>Get Nutrition Information</h3>
       <div class="search-box-wrapper">
-        <input type="text" id="combined-search-bar" placeholder="Search for food nutrition and goal-based analysis...">
+        <input type="text" id="combined-search-bar" placeholder="Search for food nutrition...">
         <div id="combined-results"></div>
       </div>
+    </div>
+
+    <div class="macro-tracker">
+      <h2>Macro Tracker</h2>
+      <table class="macro-table">
+        <thead>
+          <tr>
+            <th>Nutrient</th>
+            <th>Consumed</th>
+            <th>Daily Goal</th>
+            <th>% Completed</th>
+          </tr>
+        </thead>
+        <tbody id="macro-table-body">
+          <tr>
+            <td>Calories (kcal)</td>
+            <td id="calories-consumed">0</td>
+            <td id="calories-goal">2000</td>
+            <td id="calories-percent">0%</td>
+          </tr>
+          <tr>
+            <td>Protein (g)</td>
+            <td id="protein-consumed">0</td>
+            <td id="protein-goal">50</td>
+            <td id="protein-percent">0%</td>
+          </tr>
+          <tr>
+            <td>Carbs (g)</td>
+            <td id="carbs-consumed">0</td>
+            <td id="carbs-goal">275</td>
+            <td id="carbs-percent">0%</td>
+          </tr>
+          <tr>
+            <td>Fat (g)</td>
+            <td id="fat-consumed">0</td>
+            <td id="fat-goal">70</td>
+            <td id="fat-percent">0%</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
   <script>
     const CALORIE_NINJAS_API_KEY = "rYzH1pB46F9BsHel1beq4w==2dMCoBMLix22FUBM";
     const GEMINI_API_KEY = "AIzaSyChBpvxw6IeA8PgfIgHzR-6573XmHf3rmk";
+
+    let macroTotals = {
+      calories: 0,
+      protein: 0,
+      carbs: 0,
+      fat: 0
+    };
+
+    const dailyGoals = {
+      calories: 2000,
+      protein: 50,
+      carbs: 275,
+      fat: 70
+    };
 
     async function searchCombined(event) {
       if (event.key !== 'Enter') return;
@@ -291,6 +360,27 @@
       }
     }
 
+    function addMacrosToTracker(item) {
+      macroTotals.calories += parseFloat(item.calories) || 0;
+      macroTotals.protein += parseFloat(item.protein_g) || 0;
+      macroTotals.carbs += parseFloat(item.carbohydrates_total_g) || 0;
+      macroTotals.fat += parseFloat(item.fat_total_g) || 0;
+
+      updateMacroTable();
+    }
+
+    function updateMacroTable() {
+      document.getElementById("calories-consumed").textContent = macroTotals.calories.toFixed(1);
+      document.getElementById("protein-consumed").textContent = macroTotals.protein.toFixed(1);
+      document.getElementById("carbs-consumed").textContent = macroTotals.carbs.toFixed(1);
+      document.getElementById("fat-consumed").textContent = macroTotals.fat.toFixed(1);
+
+      document.getElementById("calories-percent").textContent = ((macroTotals.calories / dailyGoals.calories) * 100).toFixed(1) + "%";
+      document.getElementById("protein-percent").textContent = ((macroTotals.protein / dailyGoals.protein) * 100).toFixed(1) + "%";
+      document.getElementById("carbs-percent").textContent = ((macroTotals.carbs / dailyGoals.carbs) * 100).toFixed(1) + "%";
+      document.getElementById("fat-percent").textContent = ((macroTotals.fat / dailyGoals.fat) * 100).toFixed(1) + "%";
+    }
+
     function displayCombinedResults(calorieData, geminiResults) {
       const resultsDiv = document.getElementById("combined-results");
       resultsDiv.innerHTML = "";
@@ -320,6 +410,7 @@
               <em><strong>Suitability:</strong> ${geminiResult.suitability}</em><br>
               <em><strong>Recipe:</strong><br>${geminiResult.recipe}</em>
             </div>
+            <button class="add-macros-btn" onclick='addMacrosToTracker(${JSON.stringify(item)})'>Add to Tracker</button>
           `;
           resultsDiv.appendChild(div);
         });
