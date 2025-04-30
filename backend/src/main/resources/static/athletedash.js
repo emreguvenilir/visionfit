@@ -72,6 +72,7 @@ document.getElementById('liftForm').addEventListener('submit', function(event) {
         liftCounter++;
 
         alert('Lift analysis complete!');
+        //closeloadingModal();
         closeModal();
     })
     .catch(error => {
