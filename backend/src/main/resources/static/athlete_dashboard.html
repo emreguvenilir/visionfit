@@ -217,7 +217,7 @@
     
             <!-- Lift Form -->
             <form id="liftForm" action="http://127.0.0.1:5001/analyze_lift"
-method="POST" enctype="multipart/form-data" onsubmit="showLoadingModal()" style="text-align: left; max-width: 500px; margin: 0 auto;">
+method="POST" enctype="multipart/form-data" style="text-align: left; max-width: 500px; margin: 0 auto;">
 
                 
                 <!-- Lift Type Dropdown -->
@@ -299,31 +299,9 @@ method="POST" enctype="multipart/form-data" onsubmit="showLoadingModal()" style=
 
 
         <!-- Bootstrap JS -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
         <script src="athletedash.js"></script>
-        <script>
-            function showFileName() {
-                const fileInput = document.getElementById("fileUpload");
-                const fileNameSpan = document.getElementById("fileName");
-                const preview = document.getElementById("filePreview");
-                if (fileInput.files.length > 0) {
-                    fileNameSpan.textContent = fileInput.files[0].name;
-                    preview.style.display = "block";
-                }
-            }
-        
-            function closeModal() {
-                document.getElementById("uploadModal").style.display = "none";
-            }
-        
-            function showLoadingModal() {
-                document.getElementById("loadingModal").style.display = "block";
-            }
-        
-            document.getElementById("upload-btn").onclick = function () {
-                document.getElementById("uploadModal").style.display = "block";
-            };
-        </script>
         
     <!-- Loading Modal -->
 <div id="loadingModal" style="display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); text-align: center;">
