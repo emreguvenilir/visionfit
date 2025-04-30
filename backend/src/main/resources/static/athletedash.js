@@ -1,7 +1,7 @@
 let liftCounter = 1; // Start from 1 for sidebar lift labels
 
 // Handle modal open
-document.getElementById('upload-btn').addEventListener('click', function() {
+document.getElementById('upload-btn').addEventListener('click', function () {
     document.getElementById('uploadModal').style.display = 'block';
     document.getElementById('upload-btn').style.display = 'none';
 });
@@ -13,7 +13,7 @@ function closeModal() {
 }
 
 // Close modal if click outside modal content
-window.addEventListener('click', function(event) {
+window.addEventListener('click', function (event) {
     const modal = document.getElementById('uploadModal');
     if (event.target === modal) {
         closeModal();
@@ -22,15 +22,23 @@ window.addEventListener('click', function(event) {
 
 // Show uploaded file name
 function showFileName() {
-    const fileInput = document.getElementById('fileUpload');
-    const fileName = fileInput.files.length > 0 ? fileInput.files[0].name : 'No file chosen';
-    document.getElementById('fileName').innerText = fileName;
-    document.getElementById('filePreview').style.display = fileInput.files.length > 0 ? 'block' : 'none';
+    const fileInput = document.getElementById("fileUpload");
+    const fileNameSpan = document.getElementById("fileName");
+    const preview = document.getElementById("filePreview");
+    if (fileInput.files.length > 0) {
+        fileNameSpan.textContent = fileInput.files[0].name;
+        preview.style.display = "block";
+    } else {
+        preview.style.display = "none";
+    }
 }
 
 // Handle form submission
-document.getElementById('liftForm').addEventListener('submit', function(event) {
+document.getElementById('liftForm').addEventListener('submit', function (event) {
     event.preventDefault();
+
+   // $('#loadingModal').modal('show');
+    document.getElementById('loadingModal').style.display = 'block';
 
     const form = document.getElementById('liftForm');
     const formData = new FormData(form);
@@ -39,43 +47,45 @@ document.getElementById('liftForm').addEventListener('submit', function(event) {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Analysis Results:', data);
+        .then(response => response.json())
+        .then(data => {
+            console.log('Analysis Results:', data);
 
-        const tbody = document.querySelector('.table-container tbody');
+            const tbody = document.querySelector('.table-container tbody');
 
-        // Remove placeholder row if it's the first analysis
-        const firstRow = tbody.querySelector('tr');
-        if (firstRow && firstRow.innerText.includes('...') && liftCounter === 1) {
-            tbody.removeChild(firstRow);
-        }
+            // Remove placeholder row if it's the first analysis
+            const firstRow = tbody.querySelector('tr');
+            if (firstRow && firstRow.innerText.includes('...') && liftCounter === 1) {
+                tbody.removeChild(firstRow);
+            }
 
-        // Add new row of analysis data
-        const newRow = document.createElement('tr');
-        newRow.innerHTML = `
-            <td><div class="cell">${data.avg_speed_mph.toFixed(2)} MPH</div></td>
-            <td><div class="cell">${data.max_speed_mph.toFixed(2)} MPH</div></td>
-            <td><div class="cell">...</div></td>
-            <td><div class="cell">...</div></td>
-            <td><div class="cell">...</div></td>
-            <td><div class="cell">...</div></td>
-            <td><div class="cell">...</div></td>
-        `;
-        tbody.appendChild(newRow);
+            // Add new row of analysis data
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td><div class="cell">${data.avg_speed_mph.toFixed(2)} MPH</div></td>
+                <td><div class="cell">${data.max_speed_mph.toFixed(2)} MPH</div></td>
+                <td><div class="cell">...</div></td>
+                <td><div class="cell">...</div></td>
+                <td><div class="cell">...</div></td>
+                <td><div class="cell">...</div></td>
+                <td><div class="cell">...</div></td>
+            `;
+            tbody.appendChild(newRow);
 
-        // Add entry to sidebar
-        const sidebar = document.querySelector('.sidebar');
-        const liftLink = document.createElement('a');
-        liftLink.innerHTML = `<div class="cell">Lift_${liftCounter}</div>`;
-        sidebar.appendChild(liftLink);
-        liftCounter++;
+            // Add entry to sidebar
+            const sidebar = document.querySelector('.sidebar');
+            const liftLink = document.createElement('a');
+            liftLink.innerHTML = `<div class="cell">Lift_${liftCounter}</div>`;
+            sidebar.appendChild(liftLink);
+            liftCounter++;
 
-        alert('Lift analysis complete!');
-        closeModal();
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Failed to analyze lift.');
-    });
+            alert('Lift analysis complete!');
+
+            document.getElementById('loadingModal').style.display = 'none';
+            closeModal();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to analyze lift.');
+        });
 });
