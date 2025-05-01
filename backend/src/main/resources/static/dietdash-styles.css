@@ -76,7 +76,7 @@ nav ul li a {
 }
 
 .modal h2, .search-container h3, .macro-tracker h2 {
-  font-size: 16px; /* Slightly larger for headings, but consistent */
+  font-size: 16px; 
   margin-bottom: 30px;
 }
 
