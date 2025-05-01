@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             // Add a timeout to the fetch request (30 seconds)
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 30000); // Increased to 30 seconds
+            const timeoutId = setTimeout(() => controller.abort(), 30000);
 
             console.log('Sending fetch request to http://127.0.0.1:5001/analyze_lift...');
 
@@ -138,6 +138,9 @@ document.addEventListener('DOMContentLoaded', function () {
             analysisText += "<li>Consider filming your lift from multiple angles to better assess your form and identify areas for improvement.</li>";
             analysisText += "</ul>";
 
+            // Close the loading modal right before displaying the analysis modal
+            loadingModal.style.display = 'none';
+
             // Display the analysis in the modal
             analysisContent.innerHTML = analysisText;
             analysisModal.style.display = 'block';
@@ -146,14 +149,12 @@ document.addEventListener('DOMContentLoaded', function () {
             closeModal();
         } catch (error) {
             console.error('Fetch Error Details:', error);
+            loadingModal.style.display = 'none'; // Ensure loading modal closes on error
             if (error.name === 'AbortError') {
                 alert('Error analyzing lift: Request timed out after 30 seconds. Please ensure the server is running on http://127.0.0.1:5001, check for errors in the server logs, and try uploading a shorter video.');
             } else {
                 alert(`Error analyzing lift: ${error.message}. Please ensure the server is running on http://127.0.0.1:5001 and CORS is enabled.`);
             }
-        } finally {
-            // Hide loading modal
-            loadingModal.style.display = 'none';
         }
     });
 });
