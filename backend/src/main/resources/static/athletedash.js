@@ -80,14 +80,15 @@ document.addEventListener('DOMContentLoaded', function () {
             // Log the API response for debugging
             console.log('API Response:', result);
 
-            // Update table cells with API response
+            // Update table cells with response
             document.getElementById('avgSpeedCell').textContent = result.avg_speed_mph ? `${result.avg_speed_mph.toFixed(2)} mph` : '...';
             document.getElementById('maxSpeedCell').textContent = result.max_speed_mph ? `${result.max_speed_mph.toFixed(2)} mph` : '...';
-            document.getElementById('avgForcePowerCell').textContent = '...'; // Not provided by backend
-            document.getElementById('consistencyScoreCell').textContent = result.consistency_score || '...';
-            document.getElementById('fatigueIndexCell').textContent = '...'; // Not provided by backend
+            document.getElementById('avgForcePowerCell').textContent = '...'; // Still not implemented
+            document.getElementById('fatigueIndexCell').textContent = result.fatigue_index ? `${result.fatigue_index.toFixed(2)}%` : '...';
+            document.getElementById('consistencyScoreCell').textContent = result.consistency_score ? `${result.consistency_score.toFixed(2)}%` : '...';
             document.getElementById('timeUnderTensionCell').textContent = result.time_under_tension || '...';
-            document.getElementById('velocityProfileCell').textContent = '...'; // Not provided by backend
+            //document.getElementById('velocityProfileCell').textContent = result.velocity_profile ? `${result.velocity_profile.length} pts` : '...';
+            
 
             // Add new lift to sidebar
             const sidebar = document.querySelector('.sidebar');
