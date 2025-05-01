@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('maxSpeedCell').textContent = result.max_speed_mph ? `${result.max_speed_mph.toFixed(2)} mph` : '...';
             document.getElementById('avgForcePowerCell').textContent = '...'; // Still not implemented
             document.getElementById('fatigueIndexCell').textContent = result.fatigue_index ? `${result.fatigue_index.toFixed(2)}%` : '...';
-            document.getElementById('consistencyScoreCell').textContent = result.consistency_score ? `${result.consistency_score.toFixed(2)}%` : '...';
+            document.getElementById('consistencyScoreCell').textContent = result.consistency_score ? `${result.consistency_score.toFixed(2)*100}%` : '...';
             document.getElementById('timeUnderTensionCell').textContent = result.time_under_tension || '...';
             //document.getElementById('velocityProfileCell').textContent = result.velocity_profile ? `${result.velocity_profile.length} pts` : '...';
             
@@ -123,8 +123,8 @@ document.addEventListener('DOMContentLoaded', function () {
             // Analyze consistency score
             if (result.consistency_score) {
                 const consistencyScore = parseFloat(result.consistency_score);
-                analysisText += `<p><strong>Consistency Score:</strong> ${result.consistency_score}<br>`;
-                analysisText += `Your consistency score of ${result.consistency_score} reflects how steady your lift was. A score above 80% is excellent, indicating smooth execution, while below 60% suggests variability in your movement that might need attention.</p>`;
+                analysisText += `<p><strong>Consistency Score:</strong> ${result.consistency_score.toFixed(2)*100}% <br>`;
+                analysisText += `Your consistency score of ${result.consistency_score.toFixed(2)*100}% reflects how steady your lift was. A score above 80% is excellent, indicating smooth execution, while below 60% suggests variability in your movement that might need attention.</p>`;
             }
 
             // Add recommendations
