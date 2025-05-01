@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             // Add a timeout to the fetch request (30 seconds)
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 30000);
+            const timeoutId = setTimeout(() => controller.abort(), 60000);
 
             console.log('Sending fetch request to http://127.0.0.1:5001/analyze_lift...');
 
