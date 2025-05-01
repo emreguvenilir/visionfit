@@ -8,12 +8,25 @@ let macroTotals = {
   fat: 0
 };
 
-const dailyGoals = {
+// Define default daily goals (matching HTML)
+const defaultGoals = {
   calories: 2000,
   protein: 50,
   carbs: 275,
   fat: 70
 };
+
+// Define goal-specific macro goals
+const goalSpecificMacros = {
+  lose: { calories: 1800, protein: 60, carbs: 200, fat: 60 },
+  gain: { calories: 2500, protein: 80, carbs: 350, fat: 80 },
+  maintain: { calories: 2000, protein: 60, carbs: 275, fat: 70 },
+  build: { calories: 2200, protein: 100, carbs: 250, fat: 70 },
+  lean: { calories: 1900, protein: 80, carbs: 150, fat: 65 }
+};
+
+// Initialize dailyGoals with default values
+let dailyGoals = { ...defaultGoals };
 
 async function searchCombined(event) {
   if (event.key !== 'Enter') return;
@@ -96,15 +109,26 @@ function addMacrosToTracker(item) {
   macroTotals.carbs += parseFloat(item.carbohydrates_total_g) || 0;
   macroTotals.fat += parseFloat(item.fat_total_g) || 0;
 
+  console.log("Macros added:", macroTotals);
   updateMacroTable();
 }
 
 function updateMacroTable() {
+  console.log("Updating macro table with dailyGoals:", dailyGoals);
+
+  // Update consumed values
   document.getElementById("calories-consumed").textContent = macroTotals.calories.toFixed(1);
   document.getElementById("protein-consumed").textContent = macroTotals.protein.toFixed(1);
   document.getElementById("carbs-consumed").textContent = macroTotals.carbs.toFixed(1);
   document.getElementById("fat-consumed").textContent = macroTotals.fat.toFixed(1);
 
+  // Update daily goal values
+  document.getElementById("calories-goal").textContent = dailyGoals.calories;
+  document.getElementById("protein-goal").textContent = dailyGoals.protein;
+  document.getElementById("carbs-goal").textContent = dailyGoals.carbs;
+  document.getElementById("fat-goal").textContent = dailyGoals.fat;
+
+  // Update percentage completion
   document.getElementById("calories-percent").textContent = ((macroTotals.calories / dailyGoals.calories) * 100).toFixed(1) + "%";
   document.getElementById("protein-percent").textContent = ((macroTotals.protein / dailyGoals.protein) * 100).toFixed(1) + "%";
   document.getElementById("carbs-percent").textContent = ((macroTotals.carbs / dailyGoals.carbs) * 100).toFixed(1) + "%";
@@ -153,10 +177,25 @@ function submitGoal() {
   const goalInput = document.getElementById("goal");
   const goal = goalInput.value.trim();
   if (!goal) {
-    alert("Please enter a fitness goal before proceeding.");
+    alert("Please select a fitness goal before proceeding.");
     return;
   }
+
+  console.log("Goal submitted:", goal);
+
+  // Update dailyGoals based on selected goal
+  dailyGoals = { ...goalSpecificMacros[goal] } || { ...defaultGoals };
+  console.log("Updated dailyGoals:", dailyGoals);
+
+  // Immediately update the macro table
+  updateMacroTable();
+
+  // Show the search container
   document.querySelector('.search-container').style.display = 'block';
 }
+
+// Initialize macro table with default goals on page load
+console.log("Page loaded, initializing macro table with default goals");
+updateMacroTable();
 
 document.getElementById("combined-search-bar").addEventListener("keyup", searchCombined);
