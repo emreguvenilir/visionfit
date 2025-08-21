@@ -1,5 +1,5 @@
 const CALORIE_NINJAS_API_KEY = "rYzH1pB46F9BsHel1beq4w==2dMCoBMLix22FUBM";
-const GEMINI_API_KEY = "AIzaSyChBpvxw6IeA8PgfIgHzR-6573XmHf3rmk";
+const GEMINI_API_KEY = "placeholder";
 
 let macroTotals = {
   calories: 0,
