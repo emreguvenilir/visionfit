@@ -111,28 +111,44 @@ function addMacrosToTracker(item) {
 
   console.log("Macros added:", macroTotals);
   updateMacroTable();
+  addFoodLogEntry(item);
 }
 
 function updateMacroTable() {
   console.log("Updating macro table with dailyGoals:", dailyGoals);
 
   // Update consumed values
-  document.getElementById("calories-consumed").textContent = macroTotals.calories.toFixed(1);
-  document.getElementById("protein-consumed").textContent = macroTotals.protein.toFixed(1);
-  document.getElementById("carbs-consumed").textContent = macroTotals.carbs.toFixed(1);
-  document.getElementById("fat-consumed").textContent = macroTotals.fat.toFixed(1);
+  $("#calories-consumed").text(macroTotals.calories.toFixed(1));
+  $("#protein-consumed").text(macroTotals.protein.toFixed(1));
+  $("#carbs-consumed").text(macroTotals.carbs.toFixed(1));
+  $("#fat-consumed").text(macroTotals.fat.toFixed(1));
 
   // Update daily goal values
-  document.getElementById("calories-goal").textContent = dailyGoals.calories;
-  document.getElementById("protein-goal").textContent = dailyGoals.protein;
-  document.getElementById("carbs-goal").textContent = dailyGoals.carbs;
-  document.getElementById("fat-goal").textContent = dailyGoals.fat;
+  $("#calories-goal").text(dailyGoals.calories);
+  $("#protein-goal").text(dailyGoals.protein);
+  $("#carbs-goal").text(dailyGoals.carbs);
+  $("#fat-goal").text(dailyGoals.fat);
 
   // Update percentage completion
-  document.getElementById("calories-percent").textContent = ((macroTotals.calories / dailyGoals.calories) * 100).toFixed(1) + "%";
-  document.getElementById("protein-percent").textContent = ((macroTotals.protein / dailyGoals.protein) * 100).toFixed(1) + "%";
-  document.getElementById("carbs-percent").textContent = ((macroTotals.carbs / dailyGoals.carbs) * 100).toFixed(1) + "%";
-  document.getElementById("fat-percent").textContent = ((macroTotals.fat / dailyGoals.fat) * 100).toFixed(1) + "%";
+  $("#calories-percent").text(((macroTotals.calories / dailyGoals.calories) * 100).toFixed(1) + "%");
+  $("#protein-percent").text(((macroTotals.protein / dailyGoals.protein) * 100).toFixed(1) + "%");
+  $("#carbs-percent").text(((macroTotals.carbs / dailyGoals.carbs) * 100).toFixed(1) + "%");
+  $("#fat-percent").text(((macroTotals.fat / dailyGoals.fat) * 100).toFixed(1) + "%");
+
+}
+
+
+function addFoodLogEntry(item) {
+  const logEntry = `
+    <tr>
+      <td>${item.name}</td>
+      <td>${item.calories} kcal</td>
+      <td>${item.protein_g} g</td>
+      <td>${item.carbohydrates_total_g} g</td>
+      <td>${item.fat_total_g} g</td>
+    </tr>
+  `;
+  $("#macro-log-body").append(logEntry);
 }
 
 function displayCombinedResults(calorieData, geminiResults) {
@@ -150,22 +166,40 @@ function displayCombinedResults(calorieData, geminiResults) {
 
       const div = document.createElement("div");
       div.classList.add("food-result");
+      div.style.marginBottom = "15px";
+      div.style.padding = "12px";
+      div.style.border = "1px solid #ccc";
+      div.style.borderRadius = "6px";
+      div.style.backgroundColor = "#f9f9f9";
+      div.style.color = "#000";
+      div.style.width = "100%";
+      div.style.boxSizing = "border-box";
+
+
       div.innerHTML = `
         <strong>${item.name}</strong>
-        <div class="nutrition">
+        <div class="nutrition" style="margin-top:8px; margin-bottom:8px;">
           <strong>Nutritional Breakdown:</strong><br>
           Calories: ${item.calories} kcal<br>
           Protein: ${item.protein_g} g<br>
           Carbs: ${item.carbohydrates_total_g} g<br>
           Fat: ${item.fat_total_g} g
         </div>
-        <div class="analysis">
+        <div class="analysis" style="margin-bottom:8px;">
           <em><strong>Nutritional Benefit:</strong> ${geminiResult.benefit}</em><br>
           <em><strong>Suitability:</strong> ${geminiResult.suitability}</em><br>
           <em><strong>Recipe:</strong><br>${geminiResult.recipe}</em>
         </div>
-        <button class="add-macros-btn" onclick='addMacrosToTracker(${JSON.stringify(item)})'>Add to Tracker</button>
+        <button class="add-macros-btn" style="
+          padding: 6px 12px;
+          background-color: #2473ff;
+          border: none;
+          border-radius: 4px;
+          color: white;
+          cursor: pointer;
+        " onclick='addMacrosToTracker(${JSON.stringify(item)})'>Add to Tracker</button>
       `;
+
       resultsDiv.appendChild(div);
     });
   } else {
@@ -173,9 +207,10 @@ function displayCombinedResults(calorieData, geminiResults) {
   }
 }
 
+
 function submitGoal() {
-  const goalInput = document.getElementById("goal");
-  const goal = goalInput.value.trim();
+  const goal = $("#goal").val()?.trim();
+
   if (!goal) {
     alert("Please select a fitness goal before proceeding.");
     return;
@@ -184,15 +219,27 @@ function submitGoal() {
   console.log("Goal submitted:", goal);
 
   // Update dailyGoals based on selected goal
-  dailyGoals = { ...goalSpecificMacros[goal] } || { ...defaultGoals };
-  console.log("Updated dailyGoals:", dailyGoals);
+  window.dailyGoals = goalSpecificMacros[goal] ? { ...goalSpecificMacros[goal] } : { ...defaultGoals };
+  console.log("Updated dailyGoals:", window.dailyGoals);
 
   // Immediately update the macro table
   updateMacroTable();
 
   // Show the search container
-  document.querySelector('.search-container').style.display = 'block';
+  $(".search-container").show();
+
+  // Update stored info section so user can see their goal using jquery
+  $("#stored-weight").text($("#weight").val()?.trim() + " " + $("#metric").val()?.trim() || "N/A");
+  //height is made up of height-feet and height-inches
+  const heightFeet = $("#height-feet").val()?.trim() || "N/A";
+  const heightInches = $("#height-inches").val()?.trim() || "N/A";
+  const height = (heightFeet !== "N/A" ? heightFeet + "'" : "") + (heightInches !== "N/A" ? heightInches + '"' : "");
+  $("#stored-height").text(height || "N/A");
+  $("#stored-goal").text(goal.charAt(0).toUpperCase() + goal.slice(1) || "N/A");
+
+  
 }
+
 
 // Initialize macro table with default goals on page load
 console.log("Page loaded, initializing macro table with default goals");

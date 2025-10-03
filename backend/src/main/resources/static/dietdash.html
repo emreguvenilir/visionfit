@@ -12,17 +12,17 @@
     <div class="logo">VISION<span>FIT</span></div>
     <nav>
       <ul>
-        <li><a href="">Diet Dash</a></li>
-        <li><a href="trainerdash.html">Trainer Dash</a></li>
+        <li><a href="demo.html">Showcase</a></li>
+        <li><a href="athlete_dashboard.html">Athlete Dashboard</a></li>
+        <li><a href="dietdash.html">Diet Dashboard</a></li>
         <li><a href="Mission_Team.html">Our Mission</a></li>
-        <li><a href="athlete_dashboard.html">Athlete Dash</a></li>
         <li><a href="index.html" class="logout">LOGOUT</a></li>
       </ul>
     </nav>
   </header>
 
   <div class="content">
-    <div class="modal">
+    <div class="modal" style="flex: 1; display: flex; flex-direction: column; justify-content: flex-start; background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px; height: 80vh; box-sizing: border-box; overflow-y: auto;">
       <h2 style="text-align: center;">User Info</h2>
       <div class="input-group">
         <label for="weight">Current Weight:</label>
@@ -50,18 +50,27 @@
           <option value="lean">Get Leaner</option>
         </select>
       </div>
-      <button class="submit-btn" onclick="submitGoal()">Submit</button>
-    </div>
+      <button class="submit-btn" onclick="submitGoal()" style="margin-bottom: 12px;">Submit</button>
 
-    <div class="search-container">
-      <h3>Get Nutrition Information</h3>
-      <div class="search-box-wrapper">
-        <input type="text" id="combined-search-bar" placeholder="Search for food nutrition...">
-        <div id="combined-results"></div>
+      
+      <hr style="margin: 20px 0;">
+      <div id="stored-info" >
+        <h3 >Stored User Info:</h3>
+        <p style="color: black;">Weight:<span id="stored-weight">N/A</span></p>
+        <p style="color: black;">Height: <span id="stored-height">N/A</span></p>
+        <p style="color: black;">Goal: <span id="stored-goal">N/A</span></p>
       </div>
     </div>
 
-    <div class="macro-tracker">
+    <div class="search-container" style="flex: 1; display: flex; flex-direction: column; justify-content: flex-start; background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px; height: 80vh; box-sizing: border-box; overflow-y: auto;">
+      <h3>Get Nutrition Information</h3>
+      <div class="search-box-wrapper">
+        <input type="text" id="combined-search-bar" placeholder="Search for food nutrition...">
+        <div id="combined-results" style="width: 100%; flex: 1 1 auto; overflow-y: visible;"></div>
+      </div>
+    </div>
+
+    <div class="macro-tracker" style="flex: 1; display: flex; flex-direction: column; justify-content: flex-start; background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px; height: 80vh; box-sizing: border-box; overflow-y: auto;">
       <h2 style="text-align: center;">Macro Tracker</h2>
       <table class="macro-table">
         <thead>
@@ -99,9 +108,38 @@
           </tr>
         </tbody>
       </table>
+
+      <!-- Scrollable log of added items -->
+      <div id="macro-log" style="flex: 1; overflow-y: auto; border-top: 1px solid #ccc; padding-top: 10px;">
+        <h3 style="text-align: center; margin-top: 0;">Food Log</h3>
+        <table class="macro-table">
+          <thead>
+        <tr>
+          <th>Food</th>
+          <th>Calories</th>
+          <th>Protein (g)</th>
+          <th>Carbs (g)</th>
+          <th>Fat (g)</th>
+        </tr>
+          </thead>
+          <tbody id="macro-log-body">
+        <!-- JS inserts rows here -->
+          </tbody>
+        </table>
+      </div>
     </div>
+    
   </div>
 
+    
+  <!-- Load jQuery from official CDN -->
+  <script 
+    src="https://code.jquery.com/jquery-3.6.0.min.js"
+    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+    crossorigin="anonymous"></script>
+
+  <!-- Your custom script -->
   <script src="dietdash.js"></script>
 </body>
 </html>
+

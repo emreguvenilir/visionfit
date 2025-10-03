@@ -1,24 +1,29 @@
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')  # Safe for Flask
 from scipy.signal import find_peaks
 from statistics import stdev
 import os
 
-def analyze_squat_side(video_path, athlete_height_ft):
-    cap = cv2.VideoCapture(video_path)
-    fps = cap.get(cv2.CAP_PROP_FPS)
 
+def analyze_squat_side(video_path, athlete_height_ft, debug=False):
+    import cv2
+    import numpy as np
+
+    cap = cv2.VideoCapture(video_path)
+    fps = cap.get(cv2.CAP_PROP_FPS) or 30
     if not cap.isOpened():
         print("Error: Cannot open video.")
         return
 
     athlete_height_px = 400.0
     pixels_per_foot = athlete_height_px / athlete_height_ft
-
     prev_gray = None
     roi_box = None
-    motion_over_time = []
+    bar_y_trace = []
+
+    print("Analyzing video..." + (" (debug mode ON)" if debug else ""))
 
     while True:
         ret, frame = cap.read()
@@ -27,7 +32,6 @@ def analyze_squat_side(video_path, athlete_height_ft):
 
         frame = cv2.resize(frame, (900, 600))
         frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
-
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         blurred = cv2.GaussianBlur(gray, (5, 5), 0)
 
@@ -36,100 +40,124 @@ def analyze_squat_side(video_path, athlete_height_ft):
             roi_box = (int(w * 0.30), int(h * 0.12), int(w * 0.52), int(h * 0.76))
 
         x, y, rw, rh = roi_box
-        roi_frame = blurred[y:y+rh, x:x+rw]
+        roi_now = blurred[y:y+rh, x:x+rw]
 
         if prev_gray is not None:
-            prev_roi = prev_gray[y:y+rh, x:x+rw]
-            diff = cv2.absdiff(roi_frame, prev_roi)
+            roi_prev = prev_gray[y:y+rh, x:x+rw]
+            diff = cv2.absdiff(roi_now, roi_prev)
             _, thresh = cv2.threshold(diff, 25, 255, cv2.THRESH_BINARY)
 
-            motion_pixels = np.sum(thresh) / 255
-            motion_over_time.append(motion_pixels)
+            col_activity = np.sum(thresh, axis=0)
+            bar_x = int(np.argmax(col_activity))
+            band_left = max(0, bar_x - 8)
+            band_right = min(rw, bar_x + 8)
+            band = thresh[:, band_left:band_right]
 
-            cv2.rectangle(frame, (x, y), (x+rw, y+rh), (0, 255, 0), 2)
-            cv2.imshow("Motion Mask", thresh)
+            if np.sum(band) > 0:
+                ys = np.arange(band.shape[0]).reshape(-1, 1)
+                y_centroid = float((ys * (band > 0)).sum() / (band > 0).sum())
+                bar_y_trace.append(y + y_centroid)
+                if debug:
+                    # Draw tracking overlay
+                    cv2.circle(frame, (x + bar_x, int(y + y_centroid)), 6, (0, 255, 0), -1)
+                    cv2.rectangle(frame, (x+band_left, y), (x+band_right, y+rh), (255, 0, 0), 1)
+            else:
+                bar_y_trace.append(bar_y_trace[-1] if bar_y_trace else y + rh / 2)
+
+        if debug:
+            # Draw ROI outline
+            cv2.rectangle(frame, (x, y), (x+rw, y+rh), (0, 255, 255), 2)
+            cv2.imshow("VisionFit Analyzer", frame)
+            # Press 'q' to stop early
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                print("⛔ Analysis manually stopped.")
+                break
 
         prev_gray = blurred.copy()
-        cv2.imshow("Lift Frame", frame)
-
-        if cv2.waitKey(30) & 0xFF == ord('q'):
-            break
 
     cap.release()
-    cv2.destroyAllWindows()
+    if debug:
+        cv2.destroyAllWindows()
 
-    return process_motion_signal(motion_over_time, fps)
+    print("✅ Analysis complete.")
+    return process_bar_trace(bar_y_trace, fps, pixels_per_foot)
 
-def process_motion_signal(motion_signal, fps):
-    signal = np.array(motion_signal)
-    smoothed = cv2.blur(signal.reshape(-1, 1), (15, 1)).flatten()
 
-    peaks, _ = find_peaks(smoothed, distance=10)
-    valleys, _ = find_peaks(-smoothed, distance=10)
 
-    # Filter out valleys too close together (e.g., under 15 frames)
-    min_distance = 15
-    filtered_valleys = []
-    for i, v in enumerate(valleys):
-        if i == 0 or v - valleys[i - 1] > min_distance:
-            filtered_valleys.append(v)
-    valleys = np.array(filtered_valleys)
+def process_bar_trace(bar_y_trace, fps, pixels_per_foot):
+    if len(bar_y_trace) < 3:
+        return {
+            "avg_bar_speed": 0.0,
+            "max_bar_speed": 0.0,
+            "fatigue_index": 0.0,
+            "consistency_score": 0.0,
+            "time_under_tension": 0.0,
+            "velocity_over_time": [],
+            "fps": fps,
+            "pixels_per_foot": pixels_per_foot,
+            "rep_speeds": []
+        }
 
-    # Measure motion per rep
-    rep_speeds = []
+    pos = np.array(bar_y_trace, dtype=np.float32)
+    pos_smoothed = cv2.blur(pos.reshape(-1, 1), (9, 1)).flatten()
+
+    # velocity in pixels/frame
+    vel_px_per_frame = np.gradient(pos_smoothed)
+
+    # valleys = bottom of squats
+    valleys, _ = find_peaks(-pos_smoothed, distance=max(5, int(fps / 3)))
+
+    rep_speeds_px = []
     for i in range(1, len(valleys)):
-        start = valleys[i - 1]
-        end = valleys[i]
-        rep_motion = smoothed[start:end]
-        if len(rep_motion) == 0:
-            continue
-        avg = np.mean(rep_motion)
-        rep_speeds.append(avg)
+        s, e = valleys[i-1], valleys[i]
+        seg = np.abs(vel_px_per_frame[s:e])
+        if len(seg) > 0:
+            rep_speeds_px.append(float(np.mean(seg)))
 
-    avg_speed = np.mean(rep_speeds) if rep_speeds else 0
-    max_speed = np.max(rep_speeds) if rep_speeds else 0
+    avg_px = float(np.mean(rep_speeds_px)) if rep_speeds_px else 0.0
+    max_px = float(np.max(rep_speeds_px)) if rep_speeds_px else 0.0
 
-    # Fatigue Index – capped to non-negative
-    fatigue = 0
-    if len(rep_speeds) >= 2:
-        fatigue = ((rep_speeds[0] - rep_speeds[-1]) / rep_speeds[0]) * 100
-        fatigue = max(fatigue, 0)
+    # --- Fatigue logic: positive = slowdown, negative = speedup ---
+    fatigue = 0.0
+    if len(rep_speeds_px) >= 2 and rep_speeds_px[0] > 0:
+        fatigue = 100.0 * (rep_speeds_px[0] - rep_speeds_px[-1]) / rep_speeds_px[0]
+        fatigue = max(-50.0, min(100.0, fatigue))  # clamp for realism
 
-    # Time Under Tension
-    tut = len(np.where(smoothed > np.mean(smoothed) * 0.5)[0]) / fps
+    # consistency (1 - coefficient of variation)
+    if len(rep_speeds_px) > 1 and avg_px > 0:
+        cons = 1.0 - (stdev(rep_speeds_px) / avg_px)
+        consistency = float(min(1.0, max(0.0, cons)))
+    else:
+        consistency = 1.0 if rep_speeds_px else 0.0
 
-    # Plot for debugging (can remove later)
-    plt.figure()
-    plt.plot(smoothed)
-    plt.title("Motion Intensity Over Time")
-    plt.xlabel("Frame")
-    plt.ylabel("Motion Pixels")
-    plt.draw()
-    plt.close()
-
-    save_motion_plot(smoothed, "motion_plot.png")
+    abs_vel = np.abs(vel_px_per_frame)
+    tut_frames = int(np.sum(abs_vel > 0.5 * np.mean(abs_vel))) if abs_vel.size else 0
+    tut_seconds = round(tut_frames / fps, 2)
 
     return {
-        "avg_bar_speed": avg_speed,
-        "max_bar_speed": max_speed,
+        "avg_bar_speed_px_per_frame": avg_px,
+        "max_bar_speed_px_per_frame": max_px,
         "fatigue_index": fatigue,
-        "consistency_score": stdev(rep_speeds) if len(rep_speeds) > 1 else 0,
-        "time_under_tension": round(tut, 2),
-        "velocity_profile": smoothed.tolist(),
-        "valley_indices": valleys.tolist(),
+        "consistency_score": consistency,
+        "time_under_tension": tut_seconds,
+        "velocity_over_time_px_per_frame": vel_px_per_frame.tolist(),
         "fps": fps,
-        "rep_speeds": rep_speeds
+        "pixels_per_foot": pixels_per_foot,
+        "rep_speeds": rep_speeds_px
     }
 
 
 def analyze_squat_front(video_path, athlete_height_ft):
     print("Placeholder: squat front logic not yet implemented.")
 
+
 def analyze_deadlift_side(video_path, athlete_height_ft):
     print("Placeholder: deadlift side logic not yet implemented.")
 
+
 def analyze_deadlift_front(video_path, athlete_height_ft):
     print("Placeholder: deadlift front logic not yet implemented.")
+
 
 def analyze_lift(video_path, lift_type, camera_angle, athlete_height_ft):
     if lift_type == 'squat' and camera_angle == 'side':
@@ -142,15 +170,3 @@ def analyze_lift(video_path, lift_type, camera_angle, athlete_height_ft):
         return analyze_deadlift_front(video_path, athlete_height_ft)
     else:
         raise ValueError("Unsupported lift type or camera angle.")
-    
-def save_motion_plot(smoothed_signal, save_path="motion_plot.png"):
-    plt.figure(figsize=(10, 4))
-    plt.plot(smoothed_signal, color='blue', linewidth=2)
-    plt.title("Motion Intensity Over Time")
-    plt.xlabel("Frame")
-    plt.ylabel("Motion Pixels")
-    plt.grid(True)
-    plt.tight_layout()
-    plt.savefig(save_path)
-    plt.close()
-

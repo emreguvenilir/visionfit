@@ -1,9 +1,12 @@
+/* ========== Global ========== */
 body {
     margin: 0;
     font-family: 'Inknut Antiqua', serif;
     background-color: #1f2b50;
     color: white;
 }
+
+/* ========== Header/Nav ========== */
 header {
     display: flex;
     justify-content: space-between;
@@ -26,91 +29,159 @@ nav ul {
     margin-left: auto;
 }
 nav ul li a {
-    display: inline;
     text-decoration: none;
     color: white;
     font-weight: bold;
 }
 nav ul li a.logout {
-    text-decoration: none;
     color: white;
     background-color: #ff5b5b;
     padding: 10px 20px;
     border-radius: 5px;
     font-weight: bold;
 }
-.text h1 {
-    font-size: 32px;
-    max-width: 500px;
-}
+
+/* ========== Sidebar ========== */
 .sidebar {
     background-color: #2e5fff;
-    height: 80vh;
-    width: 150px;
+    width: 180px;
     font-weight: bold;
+    position: absolute;
+    top: 150px; 
     left: 0;
-    top: 15vh;
+    height: calc(100vh - 150px); 
     padding: 20px;
     border-radius: 0 10px 10px 0;
-    position: fixed;
     display: flex;
     flex-direction: column;
     align-items: center;
     overflow-y: auto;
 }
+
 .sidebar h3 {
     font-size: 1.5rem;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     font-weight: bold;
     text-align: center;
 }
-.sidebar a {
-    display: block;
+#liftList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+.lift-item {
+    margin-bottom: 12px;
+}
+.lift-box {
+    background-color: #2e5fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+.lift-box:hover {
+    background-color: #1f2b50;
+}
+.lift-name {
+    font-size: 0.95rem;
+    font-weight: bold;
     color: white;
-    text-decoration: none;
-    font-weight: bold;
-    margin: 10px 0;
-    font-size: 1.2rem;
-    text-align: center;
 }
+.lift-arrow {
+    font-size: 0.85rem;
+    color: white;
+}
+
+/* ========== Main Content ========== */
 .content {
-    margin-left: 190px;
-    padding: 20px;
-    padding-top: 80px;
+    margin-left: 210px;
+    padding: 30px;
+    padding-top: 40px;
 }
-.table-container {
+.content-section {
     background-color: #2a447d;
     padding: 20px;
     border-radius: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow-x: auto;
-    width: 100%;
+    margin-bottom: 20px;
 }
-.table-wrapper {
-    width: 100%;
-    overflow-x: auto;
+
+/* Section titles */
+.content-section h2 {
+    margin-bottom: 15px;
+    font-size: 1.4rem;
+    color: lightblue;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 8px;
 }
-.table-container table {
-    width: 1500px;
-    min-width: 100%;
-    border-collapse: collapse;
+
+/* ========== Lift Details Grid ========== */
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
 }
-.table-container th, .table-container td {
-    border: 1px solid #fff;
-    padding: 8px;
-    text-align: center;
-}
-.table-container th {
-    background-color: #1f2b50;
-    color: white;
-}
-.table-container .cell {
-    padding: 5px;
+.details-grid div {
     background-color: #3c4e8b;
-    color: white;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 0.95rem;
 }
+
+/* ========== Performance Metrics Grid ========== */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+}
+/* Icons inside metric cards */
+.metric-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #3c4e8b;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: transform 0.2s ease;
+}
+.metric-card:hover {
+    transform: translateY(-3px);
+}
+.metric-card .icon {
+  font-size: 1.4rem;
+}
+/* Thematic colors */
+.metric-card.speed .icon { color: #1abc9c; }
+.metric-card.maxspeed .icon { color: #e67e22; }
+.metric-card.consistency .icon { color: #3498db; }
+.metric-card.fatigue .icon { color: #e74c3c; }
+.metric-card.tension .icon { color: #f1c40f; }
+
+/* ========== Velocity Profile Section ========== */
+#velocityGraph {
+    background-color: #3c4e8b;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    min-height: 200px;
+}
+
+/* ========== Gemini Feedback Section ========== */
+#geminiText {
+    background-color: #3c4e8b;
+    border-radius: 8px;
+    padding: 20px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+/* ========== Upload Button ========== */
 #upload-btn {
     position: fixed;
     bottom: 20px;
@@ -127,6 +198,8 @@ nav ul li a.logout {
     font-weight: bold;
     z-index: 1000;
 }
+
+/* ========== Modals ========== */
 .modal {
     display: none;
     position: fixed;
@@ -139,15 +212,21 @@ nav ul li a.logout {
     background-color: rgba(0,0,0,0.8);
 }
 .modal-content {
-    background-color: #6c6c6c;
-    margin: 5% auto;
-    padding: 30px;
-    border-radius: 15px;
-    width: 60%;
-    max-width: 700px;
-    position: relative;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
-    text-align: center;
+  background-color: #6c6c6c; /* back to gray */
+  margin: 5% auto;
+  padding: 30px;
+  border-radius: 15px;
+  width: 60%;
+  max-width: 700px;
+  position: relative;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+  text-align: left;
+  color: white;
+}
+.modal-content h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: lightblue;
 }
 .close-btn {
     color: white;
@@ -156,63 +235,55 @@ nav ul li a.logout {
     font-weight: bold;
     cursor: pointer;
 }
-.modal-content h2 {
-    text-align: center;
-    color: white;
-    margin-bottom: 20px;
+
+/* ========== Modal Form Layout ========== */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 15px;
 }
-#liftForm {
-    text-align: left;
-    max-width: 500px;
-    margin: 0 auto;
+.form-group {
+  display: flex;
+  flex-direction: column;
 }
-#liftForm label {
-    color: white;
-    font-weight: bold;
-    margin-bottom: 5px;
-    display: block;
+.form-group label {
+  font-weight: bold;
+  margin-bottom: 5px;
 }
-#liftForm select, #liftForm input[type="number"], #liftForm input[type="file"] {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 5px;
-    border: none;
+.form-group input,
+.form-group select {
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+  background-color: #fff;  /* white input background */
+  color: #000;             /* black text */
 }
-.height-input, .weight-input {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
+.form-group input::placeholder {
+  color: #666;
 }
-#weightUnit, #unit {
-    width: 96px;
+.submit-btn {
+  grid-column: 1 / -1;
+  padding: 12px;
+  background-color: #28a745;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s;
 }
-#fileUpload {
-    background-color: #fff;
+.submit-btn:hover {
+  background-color: #218838;
 }
-#filePreview {
-    color: #e0e0e0;
-    font-size: 14px;
-    margin-bottom: 20px;
-    display: none;
+.note {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 0.9rem;
+  color: #ddd;
 }
-#liftForm button[type="submit"] {
-    width: 100%;
-    padding: 12px;
-    background-color: #28a745;
-    color: white;
-    font-size: 16px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-}
-.modal-content p {
-    color: white;
-    text-align: center;
-    font-size: 11px;
-    margin-top: 15px;
-}
+
+/* ========== Loading Modal ========== */
 #loadingModal {
     display: none;
     position: fixed;
@@ -248,4 +319,20 @@ nav ul li a.logout {
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+/* ========== Velocity Graph ========== */
+#velocityProfile {
+  text-align: center;
+}
+
+#velocityGraph {
+  width: 100%;
+  max-width: 800px;
+  height: 300px;
+  margin: 20px auto;
+  display: block;
+  background-color: #3c4e8b;
+  border-radius: 8px;
+  padding: 10px;
 }

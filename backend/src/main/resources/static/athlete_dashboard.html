@@ -1,177 +1,229 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VisionFit-dash</title>
-    <link rel="stylesheet" href="athletedash.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inknut+Antiqua:wght@400;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VisionFit Dashboard</title>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="athletedash.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inknut+Antiqua:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- Chart.js for Velocity Graph -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </head>
+
 <body>
-    <header>
-        <div class="logo">VISION<span>FIT</span></div>
-        <nav>
-            <ul>
-                <li><a href="dietdash.html">Diet Dash</a></li>
-                <li><a href="trainerdash.html">Trainer Dash</a></li>
-                <li><a href="Mission_Team.html">Our Mission</a></li>
-                <li><a href="">Athlete Dash</a></li>
-                <li><a href="index.html" class="logout">LOGOUT</a></li>
-            </ul>
-        </nav>
-    </header>
-    <main>
-        <div class="sidebar">
-            <h3>HISTORY</h3>
-            <a><div class="cell">Lift_1</div></a>
-            <a><div class="cell">Lift_2</div></a>
-            <a><div class="cell">Lift_3</div></a>
-            <a><div class="cell">Lift_4</div></a>
-            <a><div class="cell">Lift_5</div></a>
-            <a><div class="cell">Lift_6</div></a>
-            <a><div class="cell">Lift_7</div></a>
-            <a><div class="cell">Lift_8</div></a>
-            <a><div class="cell">Lift_9</div></a>
-            <a><div class="cell">Lift_10</div></a>
+  <header>
+    <div class="logo">VISION<span>FIT</span></div>
+    <nav>
+      <ul>
+        <li><a href="demo.html">Showcase</a></li>
+        <li><a href="athlete_dashboard.html">Athlete Dashboard</a></li>
+        <li><a href="dietdash.html">Diet Dashboard</a></li>
+        <li><a href="Mission_Team.html">Our Mission</a></li>
+        <li><a href="index.html" class="logout">LOGOUT</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Main Layout -->
+  <main>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <h3>HISTORY</h3>
+      <ul id="liftList">
+        <!-- Example static item -->
+      </ul>
+    </div>
+
+    <!-- main content divided into sections -->
+    <div class="content">
+
+      <!-- Lift Details no icons -->
+      <div id="liftDetails" class="content-section">
+        <h2 id="liftDetailsTitle">Lift Details</h2>
+        <div class="details-grid">
+          <div><strong>Lifter Name:</strong> <span id="detailName">Demo</span></div>
+          <div><strong>Lift Type:</strong> <span id="detailLiftType">-</span></div>
+          <div><strong>Height:</strong> <span id="detailHeight">-</span></div>
+          <div><strong>Weight:</strong> <span id="detailWeight">-</span></div>
+          <div><strong>Sex:</strong> <span id="detailSex">-</span></div>
+          <div><strong>Lift Weight:</strong> <span id="detailLiftWeight">-</span></div>
+          <div><strong>RPE:</strong> <span id="detailRpe">-</span></div>
+          <div><strong>Reps:</strong> <span id="detailReps">-</span></div>
         </div>
-    
-        <div class="content">
-            <div class="table-container">
-                <div class="table-wrapper">
-                    <table class="table table-bordered text-white">
-                        <thead>
-                            <tr>
-                                <th>Avg. Bar Speed</th>
-                                <th>Max Bar Speed</th>
-                                <th>Avg. Force/Power</th>
-                                <th>Consistency Score</th>
-                                <th>Fatigue Index</th>
-                                <th>Time Under Tension</th>
-                                <th>Velocity Profile</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><div class="cell" id="avgSpeedCell">...</div></td>
-                                <td><div class="cell" id="maxSpeedCell">...</div></td>
-                                <td><div class="cell" id="avgForcePowerCell">...</div></td>
-                                <td><div class="cell" id="consistencyScoreCell">...</div></td>
-                                <td><div class="cell" id="fatigueIndexCell">...</div></td>
-                                <td><div class="cell" id="timeUnderTensionCell">...</div></td>
-                                <td><div class="cell" id="velocityProfileCell">...</div></td>
-                            </tr>                            
-                        </tbody>
-                    </table>
+      </div>
+
+      <!-- Performance Metrics with icons -->
+      <div id="performanceMetrics" class="content-section">
+            <h2>Performance Metrics</h2>
+                <div class="metrics-grid">
+                <div class="metric-card speed">
+                    <i class="fas fa-tachometer-alt icon"></i>
+                    Avg Bar Speed: <span id="avgSpeed">-</span>
+                </div>
+                <div class="metric-card maxspeed">
+                    <i class="fas fa-bolt icon"></i>
+                    Max Bar Speed: <span id="maxSpeed">-</span>
+                </div>
+                <div class="metric-card consistency">
+                <i class="fas fa-chart-line icon"></i>
+                Consistency Score: <span id="consistencyScore">-</span>
+                </div>
+                <div class="metric-card fatigue">
+                <i class="fas fa-battery-quarter icon"></i>
+                Fatigue Index: <span id="fatigueIndex">-</span>
+                </div>
+                <div class="metric-card tension">
+                <i class="fas fa-clock icon"></i>
+                Time Under Tension: <span id="timeUnderTension">-</span>
                 </div>
             </div>
+      </div>
+
+      <!-- Velocity Profile -->
+      <div id="velocityProfile" class="content-section">
+        <h2>Velocity Profile</h2>
+        <canvas id="velocityGraph"></canvas>
+      </div>
+
+      <!-- Gemini Feedback -->
+      <div id="geminiFeedback" class="content-section">
+        <h2>AI Feedback</h2>
+        <div id="geminiText">
+          <!-- Gemini feedback text will be injected here -->
+          <em>No feedback yet</em>
         </div>
-    
-        <!-- Upload Modal Structure -->
-        <div id="uploadModal" class="modal">
-            <div class="modal-content">
-                <span class="close-btn" onclick="closeModal()">×</span>
-                <h2>One Step Closer to Success!</h2>
-    
-                <!-- Lift Form -->
-                <form id="liftForm" action="http://127.0.0.1:5001/analyze_lift" method="POST" enctype="multipart/form-data">
-                    <!-- Lift Type Dropdown -->
-                    <label for="liftType">Lift Type</label>
-                    <select id="liftType" name="liftType" required>
-                        <option value="Deadlift">Deadlift</option>
-                        <option value="Bench Press">Bench Press</option>
-                        <option value="Squat">Squat</option>
-                    </select>
-    
-                    <!-- User Height Input -->
-                    <label>Height</label>
-                    <div class="height-input">
-                        <input type="number" id="userHeightFeet" name="userHeightFeet" required placeholder="Feet" min="0">
-                        <input type="number" id="userHeightInches" name="userHeightInches" required placeholder="Inches" min="0" max="11">
-                    </div>
-    
-                    <!-- User Weight Input -->
-                    <label for="userWeight">Weight</label>
-                    <div class="weight-input">
-                        <input type="number" id="userWeight" name="userWeight" required placeholder="Enter weight" min="1">
-                        <select id="weightUnit" name="weightUnit" required>
-                            <option value="KG">KG</option>
-                            <option value="Pounds">Pounds</option>
-                        </select>
-                    </div>
-    
-                    <!-- User Sex Input -->
-                    <label for="userSex">Sex</label>
-                    <select id="userSex" name="userSex" required>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                    </select>
-    
-                    <!-- Weight Input with KG/Pounds -->
-                    <label for="weight">Lift Weight</label>
-                    <div class="weight-input">
-                        <input type="number" id="weight" name="weight" required placeholder="Enter weight" min="1">
-                        <select id="unit" name="unit" required>
-                            <option value="KG">KG</option>
-                            <option value="Pounds">Pounds</option>
-                        </select>
-                    </div>
-    
-                    <!-- RPE Input -->
-                    <label for="rpe">RPE</label>
-                    <input type="number" id="rpe" name="rpe" min="1" max="10" required>
-    
-                    <!-- Sets Input -->
-                    <label for="sets">SETs</label>
-                    <input type="number" id="sets" name="sets" min="1" max="10" required>
-    
-                    <!-- Reps Input -->
-                    <label for="reps">REPs</label>
-                    <input type="number" id="reps" name="reps" min="1" max="10" required>
-    
-                    <!-- File Upload -->
-                    <label for="fileUpload">Upload Video/File</label>
-                    <input type="file" id="fileUpload" name="fileUpload" required>
-    
-                    <!-- File Preview -->
-                    <div id="filePreview">
-                        <strong>Selected File:</strong> <span id="fileName">No file chosen</span>
-                    </div>
-    
-                    <!-- Submit Button -->
-                    <button type="submit">Submit</button>
-                </form>
-    
-                <!-- Footer Note -->
-                <p>*RPE (Rate of Perceived Exertion) refers to a subjective scale, rated from 1-10, used to gauge how hard a set feels.</p>
+      </div>
+    </div>
+
+    <div id="uploadModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">×</span>
+        <h2>One Step Closer to Success!</h2>
+
+        <form id="liftForm" action="http://127.0.0.1:5001/analyze_lift" method="POST" enctype="multipart/form-data" class="form-grid">
+        
+        <!-- Lift Type -->
+        <div class="form-group">
+            <label for="liftType">Lift Type</label>
+            <select id="liftType" name="liftType" required>
+            <option value="Squat">Squat</option>
+            </select>
+        </div>
+
+        <!-- Height -->
+        <div class="form-group">
+            <label>Height</label>
+            <div class="height-input">
+            <input type="number" id="userHeightFeet" name="userHeightFeet" required placeholder="Feet" min="0" style="width: 50px;">
+            <input type="number" id="userHeightInches" name="userHeightInches" required placeholder="Inches" min="0" max="11">
             </div>
         </div>
 
-        <!-- Analysis Modal Structure -->
-        <div id="analysisModal" class="modal">
-            <div class="modal-content">
-                <span class="close-btn" onclick="closeAnalysisModal()">×</span>
-                <h2>Lift Analysis</h2>
-                <div id="analysisContent">
-                    <!-- Analysis text will be inserted here -->
-                </div>
+        <!-- Weight -->
+        <div class="form-group">
+            <label for="userWeight">Weight</label>
+            <div class="weight-input">
+            <input type="number" id="userWeight" name="userWeight" required placeholder="Enter weight" min="1"">
+            <select id="weightUnit" name="weightUnit" required>
+                <option value="Pounds">Pounds</option>
+                <option value="KG">KG</option>
+            </select>
             </div>
         </div>
 
-        <!-- Button to Open Upload Modal -->
-        <button id="upload-btn">UPLOAD NEW LIFT</button>
+        <!-- Sex -->
+        <div class="form-group">
+            <label for="userSex">Sex</label>
+            <select id="userSex" name="userSex" required>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            </select>
+        </div>
 
-        <!-- Loading Modal -->
-        <div id="loadingModal">
-            <div class="loading-content">
-                <div class="spinner"></div>
-                <p>Analyzing Lift... Please wait</p>
+        <!-- Lift Weight -->
+        <div class="form-group">
+            <label for="weight">Lift Weight</label>
+            <div class="weight-input">
+            <input type="number" id="weight" name="weight" required placeholder="Enter weight" min="1">
+            <select id="unit" name="unit" required>
+                <option value="Pounds">Pounds</option>
+                <option value="KG">KG</option>
+            </select>
             </div>
         </div>
-    </main>
 
-    <!-- Bootstrap JS and jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- RPE -->
+        <div class="form-group">
+            <label for="rpe">RPE</label>
+            <input type="number" id="rpe" name="rpe" min="1" max="10" required>
+        </div>
+
+        <!-- Sets -->
+        <div class="form-group">
+            <label for="sets">Sets</label>
+            <input type="number" id="sets" name="sets" min="1" max="10" required>
+        </div>
+
+        <!-- Reps -->
+        <div class="form-group">
+            <label for="reps">Reps</label>
+            <input type="number" id="reps" name="reps" min="1" max="10" required>
+        </div>
+
+        <!-- File Upload -->
+        <div class="form-group">
+            <label for="fileUpload">Upload Video/File</label>
+            <input type="file" id="fileUpload" name="fileUpload" required>
+        </div>
+
+        <!-- File Preview -->
+        <div id="filePreview" class="form-group">
+            <strong>Selected File:</strong> <span id="fileName">No file chosen</span>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="submit-btn">Submit</button>
+        </form>
+
+        <p class="note">*RPE (Rate of Perceived Exertion) is a subjective 1–10 scale of effort.</p>
+    </div>
+    </div>
+
+
+    <div id="analysisModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="closeAnalysisModal()">×</span>
+        <h2>Lift Analysis</h2>
+        <div id="analysisContent"></div>
+      </div>
+    </div>
+
+    <button id="upload-btn">UPLOAD NEW LIFT</button>
+
+    <div id="loadingModal">
+      <div class="loading-content">
+        <div class="spinner"></div>
+        <p>Analyzing Lift... Please wait</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Scripts -->
+  <!-- jQuery with CDN + local fallback -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script>
+    if (typeof jQuery === 'undefined') {
+        document.write('<script src="static/js/jquery.min.js"><\/script>');
+    }
+    </script>
+
+    <!-- Your dashboard JS -->
     <script src="athletedash.js"></script>
+
 </body>
 </html>

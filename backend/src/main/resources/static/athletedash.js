@@ -9,12 +9,67 @@ document.addEventListener('DOMContentLoaded', function () {
     const filePreview = document.getElementById('filePreview');
     const fileNameSpan = document.getElementById('fileName');
 
-    // Open upload modal
+    let lifts = {}; //key: liftId, value: liftData
+    let liftCount = 0;
+
+    function displayLiftDetails(liftIndex) {
+        const lift = lifts[liftIndex];
+        if (!lift) return;
+
+        // Update lift details
+        $("#liftDetailsTitle").text(`Lift ${liftIndex + 1} Details`);
+        $("#detailLiftType").text(lift.liftType);
+        $("#detailHeight").text(`${lift.userHeightFeet} ft ${lift.userHeightInches} in`);
+        $("#detailWeight").text(`${lift.userWeight} ${lift.weightUnit}`);
+        $("#detailSex").text(lift.userSex);
+        $("#detailLiftWeight").text(`${lift.liftWeight} ${lift.liftUnit}`);
+        $("#detailRpe").text(lift.rpe);
+        $("#detailReps").text(lift.reps);
+        $("#geminiText").text(lift.geminiAnalysis || "No analysis available.");
+
+        // Update performance metrics
+        $("#avgSpeed").text(lift.avgSpeedMph ? `${lift.avgSpeedMph.toFixed(2)} mph` : "-");
+        $("#maxSpeed").text(lift.maxSpeedMph ? `${lift.maxSpeedMph.toFixed(2)} mph` : "-");
+        $("#consistencyScore").text(lift.consistency_score ? `${(lift.consistency_score * 100).toFixed(1)}%` : "-");
+        $("#fatigueIndex").text(lift.fatigue_index ? `${lift.fatigue_index.toFixed(1)}%` : "-");
+        $("#timeUnderTension").text(lift.timeUnderTension ? `${lift.timeUnderTension}s` : "-");
+
+        if (lift.velocity_profile && lift.velocity_profile.length > 0) {
+            const ctx = document.getElementById('velocityGraph').getContext('2d');
+            if (window.velocityChart) window.velocityChart.destroy();
+
+            window.velocityChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: lift.velocity_profile.map((_, i) => i),
+                    datasets: [{
+                        label: 'Velocity (relative units)',
+                        data: lift.velocity_profile,
+                        borderColor: '#1abc9c',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: { title: { display: true, text: 'Frame' } },
+                        y: { title: { display: true, text: 'Relative Velocity' } }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+    }
+
+
     uploadBtn.addEventListener('click', function () {
         uploadModal.style.display = 'block';
     });
 
-    // Close upload modal
     window.closeModal = function () {
         uploadModal.style.display = 'none';
         liftForm.reset();
@@ -22,12 +77,10 @@ document.addEventListener('DOMContentLoaded', function () {
         fileNameSpan.textContent = 'No file chosen';
     };
 
-    // Close analysis modal
     window.closeAnalysisModal = function () {
         analysisModal.style.display = 'none';
     };
 
-    // Show file name when a file is selected
     fileInput.addEventListener('change', function () {
         if (fileInput.files.length > 0) {
             fileNameSpan.textContent = fileInput.files[0].name;
@@ -38,24 +91,17 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Handle form submission
     liftForm.addEventListener('submit', async function (event) {
         event.preventDefault();
 
-        // Show loading modal
         loadingModal.style.display = 'block';
-
-        // Create FormData object to collect form data
         const formData = new FormData(liftForm);
-        
-        // Log form data for debugging
         console.log('Form Data:');
         for (let [key, value] of formData.entries()) {
             console.log(`${key}: ${value}`);
         }
 
         try {
-            // Add a timeout to the fetch request (30 seconds)
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 60000);
 
@@ -76,28 +122,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             const result = await response.json();
-
-            // Log the API response for debugging
             console.log('API Response:', result);
-
-            // Update table cells with response
-            document.getElementById('avgSpeedCell').textContent = result.avg_speed_mph ? `${result.avg_speed_mph.toFixed(2)} mph` : '...';
-            document.getElementById('maxSpeedCell').textContent = result.max_speed_mph ? `${result.max_speed_mph.toFixed(2)} mph` : '...';
-            document.getElementById('avgForcePowerCell').textContent = '...'; // Still not implemented
-            document.getElementById('fatigueIndexCell').textContent = result.fatigue_index ? `${result.fatigue_index.toFixed(2)}%` : '...';
-            document.getElementById('consistencyScoreCell').textContent = result.consistency_score ? `${result.consistency_score.toFixed(2)*100}%` : '...';
-            document.getElementById('timeUnderTensionCell').textContent = result.time_under_tension || '...';
-            //document.getElementById('velocityProfileCell').textContent = result.velocity_profile ? `${result.velocity_profile.length} pts` : '...';
-            
-
-            // Add new lift to sidebar
-            const sidebar = document.querySelector('.sidebar');
-            const newLift = document.createElement('a');
-            const liftDiv = document.createElement('div');
-            liftDiv.className = 'cell';
-            liftDiv.textContent = `Lift_${sidebar.children.length}`;
-            newLift.appendChild(liftDiv);
-            sidebar.appendChild(newLift);
 
             // Generate Gemini-style analysis
             let analysisText = "<h3>Lift Performance Analysis</h3>";
@@ -139,18 +164,91 @@ document.addEventListener('DOMContentLoaded', function () {
             analysisText += "<li>Consider filming your lift from multiple angles to better assess your form and identify areas for improvement.</li>";
             analysisText += "</ul>";
 
-            // Close the loading modal right before displaying the analysis modal
-            loadingModal.style.display = 'none';
-
-            // Display the analysis in the modal
             analysisContent.innerHTML = analysisText;
             analysisModal.style.display = 'block';
 
-            // Close upload modal and reset form
+            $("#geminiText").html(analysisText);
+
+            //velocity graph
+            // After receiving the `result` JSON:
+            const velocityData = result.velocity_over_time;
+            if (velocityData && velocityData.length > 0) {
+                const ctx = document.getElementById('velocityGraph').getContext('2d');
+                if (window.velocityChart) window.velocityChart.destroy(); // clear old chart
+
+                window.velocityChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: velocityData.map((_, i) => i),
+                        datasets: [{
+                            label: 'Velocity (relative units)',
+                            data: velocityData,
+                            borderColor: '#1abc9c',
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            fill: false
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: { title: { display: true, text: 'Frame' } },
+                            y: { title: { display: true, text: 'Relative Velocity' } }
+                        },
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+            }
+
+            lifts[liftCount] = {
+                liftType: formData.get('liftType'),
+                userHeightFeet: formData.get('userHeightFeet'),
+                userHeightInches: formData.get('userHeightInches'),
+                userWeight: formData.get('userWeight'),
+                weightUnit: formData.get('weightUnit'),
+                userSex: formData.get('userSex'),
+                liftWeight: formData.get('weight'),
+                liftUnit: formData.get('unit'),
+                rpe: formData.get('rpe'),
+                reps: formData.get('reps'),
+                avgSpeedMph: result.avg_speed_mph,
+                maxSpeedMph: result.max_speed_mph,
+                timeUnderTension: result.time_under_tension,
+                fatigue_index: result.fatigue_index,
+                consistency_score: result.consistency_score,
+                geminiAnalysis: analysisText,
+                velocity_profile: result.velocity_over_time
+            }
+
+            const currentIndex = liftCount;
+            // Add new lift to sidebar
+            $("#liftList").append(
+            $("<li>")
+                .addClass("lift-item")
+                .append(
+                $("<div>")
+                    .addClass("lift-box")
+                    .append($("<span>").addClass("lift-name").text(`Lift ${currentIndex+1}`))
+                    .append($("<i>").addClass("fas fa-chevron-right lift-arrow"))
+                )
+                .on("click", () => {
+                displayLiftDetails(currentIndex);
+                })
+            );
+
+            displayLiftDetails(liftCount);
+            liftCount++;
+        
+            
+
+            loadingModal.style.display = 'none';
+
             closeModal();
         } catch (error) {
             console.error('Fetch Error Details:', error);
-            loadingModal.style.display = 'none'; // Ensure loading modal closes on error
+            loadingModal.style.display = 'none';
             if (error.name === 'AbortError') {
                 alert('Error analyzing lift: Request timed out after 30 seconds. Please ensure the server is running on http://127.0.0.1:5001, check for errors in the server logs, and try uploading a shorter video.');
             } else {

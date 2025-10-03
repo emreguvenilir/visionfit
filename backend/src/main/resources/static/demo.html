@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VisionFit Showcase</title>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="demo.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inknut+Antiqua:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+  <header>
+    <div class="logo">VISION<span>FIT</span></div>
+    <nav>
+      <ul>
+        <li><a href="demo.html">Showcase</a></li>
+        <li><a href="athlete_dashboard.html">Athlete Dashboard</a></li>
+        <li><a href="dietdash.html">Diet Dashboard</a></li>
+        <li><a href="Mission_Team.html">Our Mission</a></li>
+        <li><a href="index.html" class="logout">LOGOUT</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <div id="showcase">
+
+    </div>
+  </main>
+
+  <!-- Scripts -->
+  <!-- jQuery with CDN + local fallback -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script>
+    if (typeof jQuery === 'undefined') {
+        document.write('<script src="static/js/jquery.min.js"><\/script>');
+    }
+    </script>
+
+    <!-- Your dashboard JS -->
+    <script src="demo.js"></script>
+
+</body>
+</html>
