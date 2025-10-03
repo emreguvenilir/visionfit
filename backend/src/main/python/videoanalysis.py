@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')  # Safe for Flask
-from scipy.signal import find_peaks
+import scipy.signal as signal
 from statistics import stdev
 import os
 
@@ -98,41 +98,56 @@ def process_bar_trace(bar_y_trace, fps, pixels_per_foot):
             "rep_speeds": []
         }
 
+    # --- Position smoothing ---
     pos = np.array(bar_y_trace, dtype=np.float32)
     pos_smoothed = cv2.blur(pos.reshape(-1, 1), (9, 1)).flatten()
 
-    # velocity in pixels/frame
-    vel_px_per_frame = np.gradient(pos_smoothed)
+    # --- Velocity (pixels / frame) ---
+    vel = np.gradient(pos_smoothed)
 
-    # valleys = bottom of squats
-    valleys, _ = find_peaks(-pos_smoothed, distance=max(5, int(fps / 3)))
+    # 🧹 1) Median filter kills single-frame spikes
+    vel = cv2.medianBlur(vel.astype(np.float32).reshape(-1, 1), 5).flatten()
+
+    # 🪶 2) Light blur for consistency
+    vel_smoothed = cv2.blur(vel.reshape(-1, 1), (7, 1)).flatten()
+
+    # 🚦 3) Clip to biomechanically realistic range (–15 ↔ 15 px/frame)
+    vel_smoothed = np.clip(vel_smoothed, -15, 15)
+
+    # --- Rep segmentation (valleys = bottom of squats) ---
+    valleys, _ = signal.find_peaks(-pos_smoothed, distance=max(5, int(fps / 3)))
+    rep_boundaries = valleys.tolist()
 
     rep_speeds_px = []
     for i in range(1, len(valleys)):
-        s, e = valleys[i-1], valleys[i]
-        seg = np.abs(vel_px_per_frame[s:e])
+        s, e = valleys[i - 1], valleys[i]
+        seg = np.abs(vel_smoothed[s:e])
         if len(seg) > 0:
             rep_speeds_px.append(float(np.mean(seg)))
 
     avg_px = float(np.mean(rep_speeds_px)) if rep_speeds_px else 0.0
     max_px = float(np.max(rep_speeds_px)) if rep_speeds_px else 0.0
 
-    # --- Fatigue logic: positive = slowdown, negative = speedup ---
+    # --- Fatigue logic: positive = slowdown, negative = speed-up ---
     fatigue = 0.0
     if len(rep_speeds_px) >= 2 and rep_speeds_px[0] > 0:
         fatigue = 100.0 * (rep_speeds_px[0] - rep_speeds_px[-1]) / rep_speeds_px[0]
-        fatigue = max(-50.0, min(100.0, fatigue))  # clamp for realism
+        fatigue = max(-50.0, min(100.0, fatigue))
 
-    # consistency (1 - coefficient of variation)
+    # --- Consistency (1 – coefficient of variation) ---
     if len(rep_speeds_px) > 1 and avg_px > 0:
         cons = 1.0 - (stdev(rep_speeds_px) / avg_px)
         consistency = float(min(1.0, max(0.0, cons)))
     else:
         consistency = 1.0 if rep_speeds_px else 0.0
 
-    abs_vel = np.abs(vel_px_per_frame)
+    # --- Time under tension (frames above ½ mean velocity magnitude) ---
+    abs_vel = np.abs(vel_smoothed)
     tut_frames = int(np.sum(abs_vel > 0.5 * np.mean(abs_vel))) if abs_vel.size else 0
     tut_seconds = round(tut_frames / fps, 2)
+
+    # Additional smoothing to flatten small jitters in single-rep velocity
+    vel_smoothed = signal.savgol_filter(vel_smoothed, window_length=15, polyorder=3, mode='interp')
 
     return {
         "avg_bar_speed_px_per_frame": avg_px,
@@ -140,7 +155,8 @@ def process_bar_trace(bar_y_trace, fps, pixels_per_foot):
         "fatigue_index": fatigue,
         "consistency_score": consistency,
         "time_under_tension": tut_seconds,
-        "velocity_over_time_px_per_frame": vel_px_per_frame.tolist(),
+        "velocity_over_time_px_per_frame": vel_smoothed.tolist(),
+        "rep_boundaries": rep_boundaries,
         "fps": fps,
         "pixels_per_foot": pixels_per_foot,
         "rep_speeds": rep_speeds_px

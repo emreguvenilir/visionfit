@@ -50,15 +50,14 @@ main {
   margin: 0 auto;
 }
 
-/* Placeholder sections to structure the page */
+/* Section Containers */
 .section {
   background-color: #2a447d;
   border-radius: 10px;
   padding: 30px;
-  margin-bottom: 30px;
+  margin-bottom: 40px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
 }
-
-/* Section titles */
 .section h2 {
   color: lightblue;
   margin-bottom: 15px;
@@ -66,40 +65,128 @@ main {
   padding-bottom: 8px;
 }
 
-/* Video grid (placeholder) */
+/* ========== Info Section ========== */
+.info-box {
+  background-color: #2e5fff;
+  border-radius: 10px;
+  padding: 20px 30px;
+  max-width: 850px;
+  margin: 0 auto 40px;
+  text-align: center;
+  line-height: 1.6;
+}
+.info-box p {
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+/* ========== Video Showcase ========== */
 .video-grid {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 25px;
 }
-.video-grid video {
-  width: 30%;
+.demo-card {
+  background-color: #3c4e8b;
   border-radius: 10px;
-  border: 2px solid #3c4e8b;
+  padding: 20px;
+  text-align: center;
+  width: 45%;
+  min-width: 320px;
+  transition: transform 0.2s ease;
+}
+.demo-card:hover {
+  transform: translateY(-3px);
+}
+.demo-card h3 {
+  color: lightblue;
+  margin-bottom: 10px;
+}
+.demo-card video {
+  width: 100%;
+  border-radius: 10px;
+  border: 2px solid #1f2b50;
+}
+.demo-card p {
+  font-size: 0.9rem;
+  margin-top: 8px;
+  opacity: 0.85;
 }
 
-/* Metric cards placeholder */
+/* ========== Metrics Grid ========== */
 .metrics {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 15px;
+  gap: 40px;
+  margin-top: 20px;
 }
 .metric-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   background-color: #3c4e8b;
   padding: 15px 20px;
   border-radius: 8px;
   font-weight: bold;
   font-size: 1rem;
+  transition: transform 0.2s ease;
+}
+.metric-card:hover {
+  transform: translateY(-3px);
+}
+.metric-card i {
+  font-size: 1.2rem;
+}
+.metric-card.speed i { color: #1abc9c; }
+.metric-card.maxspeed i { color: #e67e22; }
+.metric-card.consistency i { color: #3498db; }
+.metric-card.fatigue i { color: #e74c3c; }
+.metric-card.tension i { color: #f1c40f; }
+.metric-card.power i { color: #9b59b6; }
+
+/* ========== Explanation Section ========== */
+.explanation {
+  background-color: #3c4e8b;
+  border-radius: 10px;
+  padding: 25px 30px;
+  line-height: 1.6;
+  font-size: 1rem;
+  margin: 40px auto 0;
+}
+.explanation h3 {
+  color: lightblue;
+  margin-bottom: 10px;
+}
+.explanation p {
+  opacity: 0.95;
 }
 
-/* Info/Instruction box */
-.info-box {
-  background-color: #2e5fff;
+.instructions
+{
+  background-color: #3c4e8b;
   border-radius: 10px;
-  padding: 20px;
-  max-width: 800px;
-  margin: 0 auto;
-  text-align: center;
+  padding: 25px 30px;
+  line-height: 1.6;
+  font-size: 1rem;
+  margin: 40px auto 0;
+}
+.instructions h3 {
+  color: lightblue;
+  margin-bottom: 10px;
+}
+.instructions p {
+  opacity: 0.95;
+}
+
+/* ========== Responsive ========== */
+@media (max-width: 768px) {
+  .demo-card {
+    width: 100%;
+  }
+  .metrics {
+    flex-direction: column;
+    align-items: center;
+  }
 }

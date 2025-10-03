@@ -1,5 +1,5 @@
 const CALORIE_NINJAS_API_KEY = "rYzH1pB46F9BsHel1beq4w==2dMCoBMLix22FUBM";
-const GEMINI_API_KEY = "AIzaSyChBpvxw6IeA8PgfIgHzR-6573XmHf3rmk";
+const GEMINI_API_KEY = "AIzaSyBFESkUAiF9L2fJ-NADes31Io0x6Cpg-GI";
 
 let macroTotals = {
   calories: 0,
@@ -72,7 +72,8 @@ async function analyzeFoodWithGemini(foodName, goal) {
   2. A sentence evaluating its suitability for ${goalText}.
   3. A simple recipe that includes ${foodName} with basic ingredients and steps.`;
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
+
 
   try {
     const response = await fetch(url, {

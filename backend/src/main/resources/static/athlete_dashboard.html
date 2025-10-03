@@ -12,6 +12,8 @@
 
   <!-- Chart.js for Velocity Graph -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.1.2"></script>
+
 
 </head>
 
@@ -70,16 +72,19 @@
                     Max Bar Speed: <span id="maxSpeed">-</span>
                 </div>
                 <div class="metric-card consistency">
-                <i class="fas fa-chart-line icon"></i>
-                Consistency Score: <span id="consistencyScore">-</span>
+                  <i class="fas fa-chart-line icon"></i>
+                  Consistency Score: <span id="consistencyScore">-</span>
                 </div>
                 <div class="metric-card fatigue">
-                <i class="fas fa-battery-quarter icon"></i>
-                Fatigue Index: <span id="fatigueIndex">-</span>
+                  <i class="fas fa-battery-quarter icon"></i>
+                  Fatigue Index: <span id="fatigueIndex">-</span>
                 </div>
                 <div class="metric-card tension">
-                <i class="fas fa-clock icon"></i>
-                Time Under Tension: <span id="timeUnderTension">-</span>
+                  <i class="fas fa-clock icon"></i>
+                  Time Under Tension: <span id="timeUnderTension">-</span>
+                </div>
+                  <div class="metric-card power">
+                  <i class="fas fa-dumbbell icon"></i> Max Power Output: <span id="maxPower">-</span>
                 </div>
             </div>
       </div>

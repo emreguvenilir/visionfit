@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>VisionFit Showcase</title>
 
   <!-- Styles -->
-  <link rel="stylesheet" href="demo.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inknut+Antiqua:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="demo.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inknut+Antiqua:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
 
 <body>
@@ -16,7 +16,7 @@
     <div class="logo">VISION<span>FIT</span></div>
     <nav>
       <ul>
-        <li><a href="demo.html">Showcase</a></li>
+        <li><a href="demo.html" class="active">Showcase</a></li>
         <li><a href="athlete_dashboard.html">Athlete Dashboard</a></li>
         <li><a href="dietdash.html">Diet Dashboard</a></li>
         <li><a href="Mission_Team.html">Our Mission</a></li>
@@ -26,22 +26,84 @@
   </header>
 
   <main>
-    <div id="showcase">
+    <section id="demo-section">
+      <h1>Demo Lift Showcase</h1>
+      <p class="intro">
+        This demo highlights VisionFit’s computer-vision performance tracking. Below, you’ll see the original and analyzed versions of a 95 lb squat for 10 reps at RPE 1.
+      </p>
 
-    </div>
+      <div class="video-grid">
+        <div class="demo-card">
+          <h3><i class="fa-solid fa-dumbbell"></i> Original Lift</h3>
+          <video controls>
+            <source src="demo_videos/JT 95 S Side.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+          <p class="caption">Unprocessed side-view squat footage.</p>
+        </div>
+
+        <div class="demo-card">
+          <h3><i class="fa-solid fa-brain"></i> VisionFit Analysis</h3>
+          <video controls>
+            <source src="demo_videos/Demo CV.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+          <p class="caption">VisionFit’s motion tracking identifies barbell displacement, calculates velocity, and extracts estimated real-time metrics.</p>
+        </div>
+      </div>
+
+
+
+      <div class="results-section">
+        <h2>Lift Details</h2>
+        <div class="metrics-grid">
+          <div class="metric-card speed"><i class="fa-solid fa-gauge-high icon"></i>Avg Speed: 2.61 mph</div>
+          <div class="metric-card maxspeed"><i class="fa-solid fa-bolt icon"></i>Max Speed: 3.81 mph</div>
+          <div class="metric-card consistency"><i class="fa-solid fa-wave-square icon"></i>Consistency: 66.8%</div>
+          <div class="metric-card fatigue"><i class="fa-solid fa-heart-pulse icon"></i>Fatigue Index: -50.0%</div>
+          <div class="metric-card tension"><i class="fa-solid fa-stopwatch icon"></i>Time Under Tension: 10.41 s</div>
+          <div class="metric-card power"><i class="fa-solid fa-fire icon"></i>Max Power: 719.39 W</div>
+        </div>
+      </div>
+
+      <div class="explanation">
+        <h2>Understanding the Metrics</h2>
+        <p>
+          VisionFit calculates speed, power, and control across each repetition using frame-by-frame analysis. 
+          <strong>Average speed</strong> reflects overall pacing, while <strong>max speed</strong> captures peak explosiveness. 
+          <strong>Consistency</strong> indicates steadiness across reps, and <strong>fatigue index</strong> measures change in performance over time. 
+          <strong>Time under tension</strong> represents total duration of active movement, helping gauge muscle endurance.
+        </p>
+      </div>
+
+      <div class="instructions">
+        <h2>How To Use the Dashboard</h2>
+        <p>
+          Welcome to <strong>VisionFit</strong> — your intelligent performance tracker.  
+          Currently, the system supports <strong>side-view squat analysis</strong> using our computer-vision model.
+        </p>
+        <ul>
+          <li>Upload a clear <strong>side-angle squat video</strong> (ideally 3–10 seconds, good lighting, full body visible).</li>
+          <li>Enter your <strong>height, body weight, lift weight, RPE, and reps</strong> before submitting.</li>
+          <li>Our vision model will automatically track barbell motion, calculate <strong>velocity, fatigue, power, and consistency</strong>, and generate lift feedback using <strong>Gemini AI</strong>.</li>
+          <li>Once complete, you’ll see your results, velocity graph, and AI feedback in the dashboard.</li>
+          <li>For best accuracy, keep the camera steady and ensure your full movement stays in frame.</li>
+        </ul>
+        <p>
+          Stay tuned — support for front-view squats, deadlifts, and bench presses is coming soon!
+        </p>
+      </div>
+
+    </section>
   </main>
 
   <!-- Scripts -->
-  <!-- jQuery with CDN + local fallback -->
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-    <script>
-    if (typeof jQuery === 'undefined') {
-        document.write('<script src="static/js/jquery.min.js"><\/script>');
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+  <script>
+    if (typeof jQuery === "undefined") {
+      document.write('<script src="static/js/jquery.min.js"><\/script>');
     }
-    </script>
-
-    <!-- Your dashboard JS -->
-    <script src="demo.js"></script>
-
+  </script>
+  <script src="demo.js"></script>
 </body>
 </html>

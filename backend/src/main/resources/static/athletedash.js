@@ -1,3 +1,5 @@
+const GEMINI_API_KEY = "AIzaSyBFESkUAiF9L2fJ-NADes31Io0x6Cpg-GI";
+
 document.addEventListener('DOMContentLoaded', function () {
     const uploadBtn = document.getElementById('upload-btn');
     const uploadModal = document.getElementById('uploadModal');
@@ -33,6 +35,7 @@ document.addEventListener('DOMContentLoaded', function () {
         $("#consistencyScore").text(lift.consistency_score ? `${(lift.consistency_score * 100).toFixed(1)}%` : "-");
         $("#fatigueIndex").text(lift.fatigue_index ? `${lift.fatigue_index.toFixed(1)}%` : "-");
         $("#timeUnderTension").text(lift.timeUnderTension ? `${lift.timeUnderTension}s` : "-");
+        $("#maxPower").text(lift.maxPowerWatts ? `${lift.maxPowerWatts} W` : "-");
 
         if (lift.velocity_profile && lift.velocity_profile.length > 0) {
             const ctx = document.getElementById('velocityGraph').getContext('2d');
@@ -124,50 +127,76 @@ document.addEventListener('DOMContentLoaded', function () {
             const result = await response.json();
             console.log('API Response:', result);
 
-            // Generate Gemini-style analysis
-            let analysisText = "<h3>Lift Performance Analysis</h3>";
-            analysisText += "<p>Here’s a detailed breakdown of your lift based on the analyzed metrics:</p>";
+            
+            let analysisText = "No analysis available.";
 
-            // Analyze average and max speed
-            if (result.avg_speed_mph && result.max_speed_mph) {
-                const avgSpeed = parseFloat(result.avg_speed_mph);
-                const maxSpeed = parseFloat(result.max_speed_mph);
-                analysisText += `<p><strong>Average Bar Speed:</strong> ${avgSpeed.toFixed(2)} mph<br>`;
-                analysisText += `Your average bar speed indicates the overall pace of your lift. A speed of ${avgSpeed.toFixed(2)} mph suggests a ${avgSpeed > 0.5 ? "solid" : "slower"} pace, which is ${avgSpeed > 0.5 ? "good for building strength" : "an area to improve for explosive power"}.</p>`;
-                analysisText += `<p><strong>Max Bar Speed:</strong> ${maxSpeed.toFixed(2)} mph<br>`;
-                analysisText += `Your peak speed of ${maxSpeed.toFixed(2)} mph shows your explosive capability. A higher max speed relative to your average (${maxSpeed / avgSpeed > 1.5 ? "indicates good explosiveness" : "suggests a more controlled lift"}).</p>`;
+            async function generateGeminiLiftFeedback(result) {
+                const prompt = `
+                You are a professional strength coach. 
+                Given the athlete and lift data below, write 3–4 sentences of concise, encouraging feedback
+                focused on control, effort, and one key improvement area.
+
+                Athlete:
+                - Sex: ${result.userSex}
+                - Height: ${result.userHeightFeet} ft ${result.userHeightInches} in
+                - Body Weight: ${result.userWeight} ${result.weightUnit}
+
+                Lift:
+                - Type: ${result.liftType}
+                - Load: ${result.liftWeight} ${result.liftUnit}
+                - Reps: ${result.reps}
+                - RPE: ${result.rpe}
+
+                Performance:
+                - Avg Speed: ${result.avg_speed_mph.toFixed(2)} mph
+                - Max Speed: ${result.max_speed_mph.toFixed(2)} mph
+                - Consistency: ${(result.consistency_score * 100).toFixed(1)}%
+                - Fatigue: ${result.fatigue_index.toFixed(1)}%
+                - Time Under Tension: ${result.time_under_tension}s
+                - Max Power: ${result.max_power_watts.toFixed(2)} W
+                `;
+
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
+
+                try {
+                    const response = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }]
+                    })
+                    });
+
+                    if (!response.ok) throw new Error(`Gemini API request failed: ${response.statusText}`);
+
+                    const data = await response.json();
+                    const geminiOutput = data.candidates?.[0]?.content?.parts?.[0]?.text || "No feedback generated.";
+
+                    // ✅ set dynamically, not returned
+                    analysisText = geminiOutput;
+                    $("#geminiText").text(geminiOutput);
+
+                } catch (error) {
+                    console.error("Error generating Gemini lift feedback:", error);
+                    analysisText = "Unable to generate feedback right now. Try again later.";
+                    $("#geminiText").text(analysisText);
+                }
             }
 
-            // Analyze time under tension
-            if (result.time_under_tension) {
-                const timeUnderTension = parseFloat(result.time_under_tension);
-                analysisText += `<p><strong>Time Under Tension:</strong> ${result.time_under_tension}<br>`;
-                analysisText += `You maintained tension for ${result.time_under_tension}, which is ${timeUnderTension > 5 ? "excellent for muscle endurance" : "on the shorter side, possibly indicating a quicker lift"}.</p>`;
-            }
+            await generateGeminiLiftFeedback({
+                ...result,
+                userSex: formData.get('userSex'),
+                userHeightFeet: formData.get('userHeightFeet'),
+                userHeightInches: formData.get('userHeightInches'),
+                userWeight: formData.get('userWeight'),
+                weightUnit: formData.get('weightUnit'),
+                liftType: formData.get('liftType'),
+                liftWeight: formData.get('weight'),
+                liftUnit: formData.get('unit'),
+                rpe: formData.get('rpe'),
+                reps: formData.get('reps'),
+            });
 
-            // Analyze consistency score
-            if (result.consistency_score) {
-                const consistencyScore = parseFloat(result.consistency_score);
-                analysisText += `<p><strong>Consistency Score:</strong> ${result.consistency_score.toFixed(2)*100}% <br>`;
-                analysisText += `Your consistency score of ${result.consistency_score.toFixed(2)*100}% reflects how steady your lift was. A score above 80% is excellent, indicating smooth execution, while below 60% suggests variability in your movement that might need attention.</p>`;
-            }
-
-            // Add recommendations
-            analysisText += "<h4>Recommendations</h4>";
-            analysisText += "<ul>";
-            if (result.avg_speed_mph && parseFloat(result.avg_speed_mph) < 0.5) {
-                analysisText += "<li>Focus on increasing your bar speed by incorporating power-focused exercises like speed squats or explosive deadlifts.</li>";
-            }
-            if (result.consistency_score && parseFloat(result.consistency_score) < 60) {
-                analysisText += "<li>Work on maintaining a more consistent speed throughout your lift. Slow down and focus on form to reduce variability.</li>";
-            }
-            analysisText += "<li>Consider filming your lift from multiple angles to better assess your form and identify areas for improvement.</li>";
-            analysisText += "</ul>";
-
-            analysisContent.innerHTML = analysisText;
-            analysisModal.style.display = 'block';
-
-            $("#geminiText").html(analysisText);
 
             //velocity graph
             // After receiving the `result` JSON:
@@ -219,7 +248,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 fatigue_index: result.fatigue_index,
                 consistency_score: result.consistency_score,
                 geminiAnalysis: analysisText,
-                velocity_profile: result.velocity_over_time
+                velocity_profile: result.velocity_over_time,
+                maxPowerWatts: result.max_power_watts
             }
 
             const currentIndex = liftCount;
@@ -238,10 +268,31 @@ document.addEventListener('DOMContentLoaded', function () {
                 })
             );
 
+
+            let modalHTML = `
+            <h3>Performance Summary</h3>
+            <ul style="list-style-type:none; padding:0; line-height:1.8;">
+                <li><strong>Lift Type:</strong> ${lifts[liftCount].liftType}</li>
+                <li><strong>Load:</strong> ${lifts[liftCount].liftWeight} ${lifts[liftCount].liftUnit}</li>
+                <li><strong>Reps:</strong> ${lifts[liftCount].reps}</li>
+                <li><strong>RPE:</strong> ${lifts[liftCount].rpe}</li>
+                <li><strong>Average Speed:</strong> ${lifts[liftCount].avgSpeedMph.toFixed(2)} mph</li>
+                <li><strong>Max Speed:</strong> ${lifts[liftCount].maxSpeedMph.toFixed(2)} mph</li>
+                <li><strong>Consistency:</strong> ${(lifts[liftCount].consistency_score * 100).toFixed(1)}%</li>
+                <li><strong>Fatigue Index:</strong> ${lifts[liftCount].fatigue_index.toFixed(1)}%</li>
+                <li><strong>Time Under Tension:</strong> ${lifts[liftCount].timeUnderTension}s</li>
+                <li><strong>Max Power Output:</strong> ${lifts[liftCount].maxPowerWatts.toFixed(2)} W</li>
+            </ul>
+            
+            <h3>Coach Feedback</h3>
+            <p id="geminiText">${lifts[liftCount].geminiAnalysis || "<em>Generating feedback...</em>"}</p>
+            `;
+
+            document.getElementById("analysisContent").innerHTML = modalHTML;
+            analysisModal.style.display = 'block';
+
             displayLiftDetails(liftCount);
             liftCount++;
-        
-            
 
             loadingModal.style.display = 'none';
 

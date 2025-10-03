@@ -134,34 +134,72 @@ nav ul li a.logout {
 
 /* ========== Performance Metrics Grid ========== */
 .metrics-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 15px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 18px; /* slightly more breathing room between cards */
+  margin-top: 10px;
 }
-/* Icons inside metric cards */
+
+/* Individual metric cards */
 .metric-card {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   background-color: #3c4e8b;
-  padding: 15px;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: bold;
-  transition: transform 0.2s ease;
+  padding: 14px 16px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
+
 .metric-card:hover {
-    transform: translateY(-3px);
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
 }
+
+/* Icon styling */
 .metric-card .icon {
   font-size: 1.4rem;
+  flex-shrink: 0;
+  opacity: 0.95;
 }
-/* Thematic colors */
+
+/* Metric text container */
+.metric-content {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.metric-content .label {
+  font-weight: 500;
+  font-size: 0.9rem;
+  opacity: 0.85;
+  margin-bottom: 2px;
+}
+
+.metric-content .value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.metric-content .unit {
+  font-size: 0.8rem;
+  opacity: 0.75;
+  margin-left: 2px;
+}
+
+/* Thematic icon colors */
 .metric-card.speed .icon { color: #1abc9c; }
 .metric-card.maxspeed .icon { color: #e67e22; }
 .metric-card.consistency .icon { color: #3498db; }
 .metric-card.fatigue .icon { color: #e74c3c; }
 .metric-card.tension .icon { color: #f1c40f; }
+.metric-card.power .icon { color: #9b59b6; }
+
 
 /* ========== Velocity Profile Section ========== */
 #velocityGraph {

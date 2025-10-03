@@ -133,10 +133,14 @@
 
     
   <!-- Load jQuery from official CDN -->
-  <script 
-    src="https://code.jquery.com/jquery-3.6.0.min.js"
-    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
-    crossorigin="anonymous"></script>
+  <!-- Scripts -->
+  <!-- jQuery with CDN + local fallback -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script>
+    if (typeof jQuery === 'undefined') {
+        document.write('<script src="static/js/jquery.min.js"><\/script>');
+    }
+    </script>
 
   <!-- Your custom script -->
   <script src="dietdash.js"></script>
