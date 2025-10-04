@@ -40,8 +40,11 @@ def analyze_lift_route():
     # 3. Convert height
     athlete_height_ft = height_feet + (height_inches / 12)
 
-    # 4. Run analysis
-    results = analyze_squat_side(video_save_path, athlete_height_ft, debug=False)
+    flip_flag = request.form.get('flip', 'false').lower() == 'true'
+
+    # 5. Run analysis
+    results = analyze_squat_side(video_save_path, athlete_height_ft, debug=False, flip=flip_flag)
+
 
     rep_speeds_px = results['rep_speeds']
     fps = results['fps']
@@ -117,6 +120,30 @@ def gemini_proxy():
     except Exception as e:
         print("Unexpected Gemini proxy error:", e)
         return jsonify({"error": str(e)}), 500
+    
+
+# ========== CalorieNinjas Proxy ==========
+@app.route('/calories_proxy', methods=['GET'])
+def calories_proxy():
+    """Secure proxy to fetch nutrition data via backend."""
+    CALORIE_NINJAS_API_KEY = os.getenv("CALORIE_NINJAS_API_KEY")
+
+    if not CALORIE_NINJAS_API_KEY:
+        return jsonify({"error": "CalorieNinjas API key not configured"}), 500
+
+    try:
+        query = request.args.get("query")
+        if not query:
+            return jsonify({"error": "Missing 'query' parameter"}), 400
+
+        url = f"https://api.calorieninjas.com/v1/nutrition?query={query}"
+        headers = {"X-Api-Key": CALORIE_NINJAS_API_KEY}
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+        return jsonify(response.json())
+    except requests.exceptions.RequestException as e:
+        print("CalorieNinjas proxy error:", e)
+        return jsonify({"error": f"CalorieNinjas API request failed: {str(e)}"}), 500
 
 
 # ========== Server Start ==========

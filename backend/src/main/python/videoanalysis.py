@@ -7,7 +7,7 @@ from statistics import stdev
 import os
 
 
-def analyze_squat_side(video_path, athlete_height_ft, debug=False):
+def analyze_squat_side(video_path, athlete_height_ft, debug=False, flip=False):
     import cv2
     import numpy as np
 
@@ -17,6 +17,7 @@ def analyze_squat_side(video_path, athlete_height_ft, debug=False):
         print("Error: Cannot open video.")
         return
 
+    # Approximate height scaling for bar path → real distance conversion
     athlete_height_px = 400.0
     pixels_per_foot = athlete_height_px / athlete_height_ft
     prev_gray = None
@@ -30,14 +31,21 @@ def analyze_squat_side(video_path, athlete_height_ft, debug=False):
         if not ret:
             break
 
+        # Normalize size
         frame = cv2.resize(frame, (900, 600))
         frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
+
+        # ✅ Flip horizontally if recording from right side
+        if flip:
+            frame = cv2.flip(frame, 1)
+
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         blurred = cv2.GaussianBlur(gray, (5, 5), 0)
 
         if roi_box is None:
             h, w = frame.shape[:2]
-            roi_box = (int(w * 0.30), int(h * 0.12), int(w * 0.52), int(h * 0.76))
+            # Slightly adjusted ROI: more centered for flexibility
+            roi_box = (int(w * 0.25), int(h * 0.12), int(w * 0.50), int(h * 0.76))
 
         x, y, rw, rh = roi_box
         roi_now = blurred[y:y+rh, x:x+rw]
@@ -57,18 +65,17 @@ def analyze_squat_side(video_path, athlete_height_ft, debug=False):
                 ys = np.arange(band.shape[0]).reshape(-1, 1)
                 y_centroid = float((ys * (band > 0)).sum() / (band > 0).sum())
                 bar_y_trace.append(y + y_centroid)
+
                 if debug:
-                    # Draw tracking overlay
                     cv2.circle(frame, (x + bar_x, int(y + y_centroid)), 6, (0, 255, 0), -1)
                     cv2.rectangle(frame, (x+band_left, y), (x+band_right, y+rh), (255, 0, 0), 1)
             else:
+                # Hold last valid value to avoid spikes
                 bar_y_trace.append(bar_y_trace[-1] if bar_y_trace else y + rh / 2)
 
         if debug:
-            # Draw ROI outline
             cv2.rectangle(frame, (x, y), (x+rw, y+rh), (0, 255, 255), 2)
             cv2.imshow("VisionFit Analyzer", frame)
-            # Press 'q' to stop early
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 print("⛔ Analysis manually stopped.")
                 break

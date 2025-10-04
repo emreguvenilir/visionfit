@@ -1,5 +1,3 @@
-const CALORIE_NINJAS_API_KEY = "rYzH1pB46F9BsHel1beq4w==2dMCoBMLix22FUBM";
-const GEMINI_API_KEY = "AIzaSyBFESkUAiF9L2fJ-NADes31Io0x6Cpg-GI";
 
 let macroTotals = {
   calories: 0,
@@ -48,51 +46,54 @@ async function searchCombined(event) {
 }
 
 async function fetchCalorieData(query) {
-  const url = `https://api.calorieninjas.com/v1/nutrition?query=${encodeURIComponent(query)}`;
-  const response = await fetch(url, {
-    method: "GET",
-    headers: { "X-Api-Key": CALORIE_NINJAS_API_KEY, "Content-Type": "application/json" }
-  });
+  const url = `http://127.0.0.1:5001/calories_proxy?query=${encodeURIComponent(query)}`;
+  const response = await fetch(url, { method: "GET" });
   if (!response.ok) throw new Error(`CalorieNinjas API request failed: ${response.statusText}`);
   return await response.json();
 }
 
 async function analyzeFoodWithGemini(foodName, goal) {
-  const goalText = goal !== "unspecified" ? goal.replace(/lose|gain|maintain|build|lean/, 
-    match => ({
-      lose: "losing weight",
-      gain: "gaining weight",
-      maintain: "maintaining weight",
-      build: "building muscle",
-      lean: "getting leaner"
-    }[match])) : "an unspecified fitness goal";
+  const GEMINI_PROXY_URL = "http://127.0.0.1:5001/gemini_proxy";
+
+  const goalText = goal !== "unspecified"
+    ? goal.replace(/lose|gain|maintain|build|lean/,
+        match => ({
+          lose: "losing weight",
+          gain: "gaining weight",
+          maintain: "maintaining weight",
+          build: "building muscle",
+          lean: "getting leaner"
+        }[match])
+      )
+    : "an unspecified fitness goal";
 
   const prompt = `Provide the following about ${foodName}:
   1. A short sentence describing its main nutritional benefit.
   2. A sentence evaluating its suitability for ${goalText}.
   3. A simple recipe that includes ${foodName} with basic ingredients and steps.`;
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
-
-
   try {
-    const response = await fetch(url, {
+    const response = await fetch(GEMINI_PROXY_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }]
       })
     });
+
     if (!response.ok) throw new Error(`Gemini API request failed: ${response.statusText}`);
+
     const data = await response.json();
-    const text = data.candidates[0].content.parts[0].text;
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response generated.";
     const lines = text.split('\n').filter(line => line.trim());
+
     return {
       foodName,
       benefit: lines[0] || "No benefit found.",
       suitability: lines[1] || "No suitability analysis.",
       recipe: lines.slice(2).join('<br>') || "No recipe provided."
     };
+
   } catch (error) {
     console.error(`Error analyzing ${foodName} with Gemini:`, error);
     return {
@@ -103,6 +104,7 @@ async function analyzeFoodWithGemini(foodName, goal) {
     };
   }
 }
+
 
 function addMacrosToTracker(item) {
   macroTotals.calories += parseFloat(item.calories) || 0;
