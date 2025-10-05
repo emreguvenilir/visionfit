@@ -261,13 +261,13 @@ document.addEventListener('DOMContentLoaded', function () {
             closeModal();
 
         } catch (error) {
-            console.error('Fetch Error Details:', error);
-            loadingModal.style.display = 'none';
-            if (error.name === 'AbortError') {
-                alert('Request timed out (60s). Try shorter videos or check the backend.');
+            if (error.message.includes("413")) 
+            {
+                alert("Video too large — please upload a clip under 40 MB (~15–20 seconds).");
             } else {
                 alert(`Error analyzing lift: ${error.message}`);
             }
+            console.error('Error during lift analysis:', error);
         }
     });
 });

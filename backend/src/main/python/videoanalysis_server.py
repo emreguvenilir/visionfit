@@ -21,6 +21,15 @@ CORS(app, resources={
     }
 })
 
+MAX_FILE_SIZE_MB = 40  # adjust as needed
+app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE_MB * 1024 * 1024
+
+# ====== Error Handling ======
+@app.errorhandler(413)
+def file_too_large(e):
+    return jsonify({
+        "error": f"File too large. Maximum allowed size is {MAX_FILE_SIZE_MB} MB."
+    }), 413
 
 UPLOAD_FOLDER = 'uploads'
 if not os.path.exists(UPLOAD_FOLDER):
