@@ -12,7 +12,12 @@ def analyze_squat_side(video_path, athlete_height_ft, debug=False, flip=False):
     import numpy as np
 
     cap = cv2.VideoCapture(video_path)
-    fps = cap.get(cv2.CAP_PROP_FPS) or 30
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    if fps <= 0 or fps > 120:
+        print(f"[⚠️ FPS Warning] Invalid FPS detected ({fps}). Using fallback 30 FPS.")
+        fps = 30
+    else:
+        print(f"[🎥 FPS Detected] {fps:.2f} frames per second.")
     if not cap.isOpened():
         print("Error: Cannot open video.")
         return
