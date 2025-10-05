@@ -268,6 +268,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 alert(`Error analyzing lift: ${error.message}`);
             }
             console.error('Error during lift analysis:', error);
+            loadingModal.style.display = 'none';
         }
     });
 });
