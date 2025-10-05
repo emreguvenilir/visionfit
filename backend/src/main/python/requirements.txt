@@ -7,3 +7,4 @@ numpy>=2.1.0
 gunicorn>=21.2.0
 matplotlib>=3.9.0
 scipy>=1.13.0
+ffmpeg-python
