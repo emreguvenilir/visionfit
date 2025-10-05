@@ -69,22 +69,35 @@
       <div class="explanation">
         <h2>Understanding the Metrics</h2>
         <p>
-          VisionFit calculates speed, power, and control across each repetition using frame-by-frame analysis. 
-          <strong>Average speed</strong> reflects overall pacing, while <strong>max speed</strong> captures peak explosiveness. 
-          <strong>Consistency</strong> indicates steadiness across reps, and <strong>fatigue index</strong> measures change in performance over time. 
-          <strong>Time under tension</strong> represents total duration of active movement, helping gauge muscle endurance.
+          VisionFit calculates speed, power, and control across each repetition using frame-by-frame motion analysis. 
+          <strong>Average speed</strong> reflects overall pacing throughout the lift, while <strong>max speed</strong> captures the highest bar velocity achieved. 
+          <strong>Max power</strong> combines both load and speed (force × velocity) to represent true explosiveness. 
+          <strong>Consistency</strong> measures steadiness across repetitions, and the <strong>fatigue index</strong> tracks performance decline (or incline) over time. 
+          <strong>Time under tension</strong> represents the total duration of active movement, indicating muscular endurance and control.
         </p>
+        <p>
+          You will also see a velocity graph and AI-generated feedback in the Athlete Dashboard when you upload your own videos. The feedback focuses on your metric outputs and inputs to determine the goal of the set (e.g., warmup, 1RM, hypertrophy, endurance).
+          This demo lift is a light warmup set (95 lbs for 10 reps at RPE 1), so the feedback emphasizes bar speed and control over power or fatigue.
+          The velocity chart will allow you to assess pacing and consistency across reps, and give visible context to the metrics above.
+        </p>
+
       </div>
 
       <div class="instructions">
         <h2>How To Use the Dashboard</h2>
         <p>
-          Welcome to <strong>VisionFit</strong> — your intelligent performance tracker.  
+          You can upload your own videos to the Athlete Dashboard to see similar analyses for your lifts.
           Currently, the system supports <strong>side-view squat analysis</strong> using our computer-vision model.
         </p>
         <ul>
-          <li>Upload a clear <strong>side-angle squat video</strong> (ideally 3–10 seconds, good lighting, full body visible).</li>
+          <li>
+            Record your squat set from a <strong>side view</strong> — the barbell’s full motion from top to bottom should stay in frame.
+          </li>
+          <li>
+            Use a <strong>tripod or stable surface</strong> to keep the camera steady, and limit clips to <strong>10 reps (≈17 seconds)</strong> for optimal analysis.
+          </li>
           <li>Enter your <strong>height, body weight, lift weight, RPE, and reps</strong> before submitting.</li>
+          <li> Check the box <strong> Flip video horizontally </strong> if your video is recorded from the <strong>right side</strong>.</li>
           <li>Our vision model will automatically track barbell motion, calculate <strong>velocity, fatigue, power, and consistency</strong>, and generate lift feedback using <strong>Gemini AI</strong>.</li>
           <li>Once complete, you’ll see your results, velocity graph, and AI feedback in the dashboard.</li>
           <li>For best accuracy, keep the camera steady and ensure your full movement stays in frame.</li>

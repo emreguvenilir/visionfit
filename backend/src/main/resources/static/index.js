@@ -7,6 +7,6 @@ $(document).ready(function() {
     $("#indexSignIn").click(function(event) {
         event.preventDefault();  // Prevents default anchor click behavior
         console.log("Test reached");  // Debugging log
-        window.location.href = "/athlete_dashboard.html";  // Uncomment when ready to redirect
+        window.location.href = "/demo.html";  // Uncomment when ready to redirect
     });
 });
