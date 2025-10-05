@@ -46,14 +46,20 @@ async function searchCombined(event) {
 }
 
 async function fetchCalorieData(query) {
-  const url = `http://127.0.0.1:5001/calories_proxy?query=${encodeURIComponent(query)}`;
+  //testing
+  //const url = `http://127.0.0.1:5001/calories_proxy?query=${encodeURIComponent(query)}`;
+  //production
+  const url = `https://visionfit.onrender.com/calories_proxy?query=${encodeURIComponent(query)}`;
   const response = await fetch(url, { method: "GET" });
   if (!response.ok) throw new Error(`CalorieNinjas API request failed: ${response.statusText}`);
   return await response.json();
 }
 
 async function analyzeFoodWithGemini(foodName, goal) {
-  const GEMINI_PROXY_URL = "http://127.0.0.1:5001/gemini_proxy";
+  //testing
+  //const GEMINI_PROXY_URL = "http://127.0.0.1:5001/gemini_proxy";
+  //production
+  const GEMINI_PROXY_URL = "https://visionfit.onrender.com/gemini_proxy";
 
   const goalText = goal !== "unspecified"
     ? goal.replace(/lose|gain|maintain|build|lean/,

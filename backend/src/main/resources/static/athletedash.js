@@ -1,7 +1,8 @@
-const GEMINI_PROXY_URL = "http://127.0.0.1:5001/gemini_proxy";
+// ==================== Development ====================
+//const GEMINI_PROXY_URL = "http://127.0.0.1:5001/gemini_proxy";
 
-// 🟢 When deployed (Render/Railway):
-// const GEMINI_PROXY_URL = "https://visionfit-backend.onrender.com/gemini_proxy";
+// ==================== Production ====================
+const GEMINI_PROXY_URL = "https://visionfit.onrender.com/gemini_proxy";
 
 
 // ==================== MAIN DASHBOARD ====================
@@ -163,8 +164,9 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 60000);
-
-            const response = await fetch('http://127.0.0.1:5001/analyze_lift', {
+            //use the line below for local testing
+            //const response = await fetch('http://127.0.0.1:5001/analyze_lift', {
+            const response = await fetch('https://visionfit.onrender.com/analyze_lift', {
                 method: 'POST',
                 body: formData,
                 signal: controller.signal

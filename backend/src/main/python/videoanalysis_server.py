@@ -10,7 +10,17 @@ from dotenv import load_dotenv
 load_dotenv()  # Loads GEMINI_API_KEY and other vars from .env
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
+CORS(app, resources={
+    r"/*": {
+        "origins": [
+            "https://visionfit-233b.onrender.com",  # your deployed frontend
+            "http://localhost:8080"  # optional: for local testing
+        ],
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    }
+})
+
 
 UPLOAD_FOLDER = 'uploads'
 if not os.path.exists(UPLOAD_FOLDER):
