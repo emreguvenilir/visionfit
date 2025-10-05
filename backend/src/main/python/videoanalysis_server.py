@@ -16,6 +16,9 @@ UPLOAD_FOLDER = 'uploads'
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
+@app.route('/')
+def home():
+    return "VisionFit backend is running!"
 
 # ========== VisionFit Lift Analysis ==========
 @app.route('/analyze_lift', methods=['POST'])
