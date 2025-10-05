@@ -141,37 +141,13 @@ document.addEventListener('DOMContentLoaded', function () {
     window.closeAnalysisModal = () => (analysisModal.style.display = 'none');
 
     fileInput.addEventListener('change', () => {
-    if (fileInput.files.length > 0) {
-        const file = fileInput.files[0];
-
-        //Check file type
-        const allowedTypes = ['video/mp4', 'video/mov', 'video/avi', 'video/mkv', 'video/webm'];
-        if (!allowedTypes.includes(file.type)) {
-        alert('Invalid file type. Please upload a video (MP4, MOV, AVI, MKV, or WEBM).');
-        fileInput.value = ''; // Clear invalid file
-        fileNameSpan.textContent = 'No file chosen';
-        filePreview.style.display = 'none';
-        return;
+        if (fileInput.files.length > 0) {
+            fileNameSpan.textContent = fileInput.files[0].name;
+            filePreview.style.display = 'block';
+        } else {
+            fileNameSpan.textContent = 'No file chosen';
+            filePreview.style.display = 'none';
         }
-
-        // Check file size 25MB limit
-        const MAX_SIZE_MB = 25;
-        if (file.size > MAX_SIZE_MB * 1024 * 1024) {
-        alert(`Video is too large. Please upload a clip under ${MAX_SIZE_MB} MB (~17 seconds max).`);
-        fileInput.value = ''; // Clear invalid file
-        fileNameSpan.textContent = 'No file chosen';
-        filePreview.style.display = 'none';
-        return;
-        }
-
-        // Show preview if valid file
-        fileNameSpan.textContent = file.name;
-        filePreview.style.display = 'block';
-    } else {
-        // Reset display if no file selected
-        fileNameSpan.textContent = 'No file chosen';
-        filePreview.style.display = 'none';
-    }
     });
 
 
