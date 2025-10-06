@@ -1,11 +1,6 @@
-// ==================== Development ====================
-//const GEMINI_PROXY_URL = "http://127.0.0.1:5001/gemini_proxy";
-
 // ==================== Production ====================
 const GEMINI_PROXY_URL = "https://visionfit.onrender.com/gemini_proxy";
 
-
-// ==================== MAIN DASHBOARD ====================
 document.addEventListener('DOMContentLoaded', function () {
     const uploadBtn = document.getElementById('upload-btn');
     const uploadModal = document.getElementById('uploadModal');
@@ -16,11 +11,35 @@ document.addEventListener('DOMContentLoaded', function () {
     const fileInput = document.getElementById('fileUpload');
     const filePreview = document.getElementById('filePreview');
     const fileNameSpan = document.getElementById('fileName');
-    
 
     let lifts = {};
     let liftCount = 0;
 
+    // === Restore previous lifts if page reloaded (sessionStorage) ===
+    const savedLifts = sessionStorage.getItem('lifts');
+    if (savedLifts) {
+        lifts = JSON.parse(savedLifts);
+        liftCount = Object.keys(lifts).length;
+        rebuildLiftList();
+    }
+
+    function rebuildLiftList() {
+        $("#liftList").empty();
+        Object.keys(lifts).forEach((i) => {
+            const currentIndex = parseInt(i);
+            $("#liftList").append(
+                $("<li>")
+                    .addClass("lift-item")
+                    .append(
+                        $("<div>")
+                            .addClass("lift-box")
+                            .append($("<span>").addClass("lift-name").text(`Lift ${currentIndex + 1}`))
+                            .append($("<i>").addClass("fas fa-chevron-right lift-arrow"))
+                    )
+                    .on("click", () => displayLiftDetails(currentIndex))
+            );
+        });
+    }
 
     // ==================== DISPLAY DETAILS ====================
     function displayLiftDetails(liftIndex) {
@@ -72,7 +91,6 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
     }
-
 
     // ==================== GEMINI FEEDBACK ====================
     async function generateGeminiLiftFeedback(result) {
@@ -129,7 +147,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-
     // ==================== MODAL CONTROLS ====================
     uploadBtn.addEventListener('click', () => (uploadModal.style.display = 'block'));
     window.closeModal = () => {
@@ -150,8 +167,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-
-
     // ==================== SUBMIT LIFT ====================
     liftForm.addEventListener('submit', async function (event) {
         event.preventDefault();
@@ -165,9 +180,6 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 60000);
-            // Testing
-            //const response = await fetch('http://127.0.0.1:5001/analyze_lift', {
-            // Production
             const response = await fetch('https://visionfit.onrender.com/analyze_lift', {
                 method: 'POST',
                 body: formData,
@@ -219,6 +231,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 maxPowerWatts: result.max_power_watts
             };
 
+            // === Save lifts to sessionStorage ===
+            sessionStorage.setItem('lifts', JSON.stringify(lifts));
+
             // === Add to Sidebar ===
             const currentIndex = liftCount;
             $("#liftList").append(
@@ -259,12 +274,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
             liftCount++;
             loadingModal.style.display = 'none';
-
             closeModal();
 
         } catch (error) {
-            if (error.message.includes("413")) 
-            {
+            if (error.message.includes("413")) {
                 alert("Video too large — please upload a clip under 40 MB (~15–20 seconds).");
             } else {
                 alert(`Error analyzing lift: ${error.message}`);

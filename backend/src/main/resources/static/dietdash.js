@@ -1,4 +1,3 @@
-
 let macroTotals = {
   calories: 0,
   protein: 0,
@@ -6,7 +5,7 @@ let macroTotals = {
   fat: 0
 };
 
-// Define default daily goals (matching HTML)
+// Default daily goals
 const defaultGoals = {
   calories: 2000,
   protein: 50,
@@ -14,7 +13,6 @@ const defaultGoals = {
   fat: 70
 };
 
-// Define goal-specific macro goals
 const goalSpecificMacros = {
   lose: { calories: 1800, protein: 60, carbs: 200, fat: 60 },
   gain: { calories: 2500, protein: 80, carbs: 350, fat: 80 },
@@ -23,8 +21,27 @@ const goalSpecificMacros = {
   lean: { calories: 1900, protein: 80, carbs: 150, fat: 65 }
 };
 
-// Initialize dailyGoals with default values
 let dailyGoals = { ...defaultGoals };
+
+// 🧠 Restore macros + food log from sessionStorage
+window.addEventListener("DOMContentLoaded", () => {
+  const savedMacros = sessionStorage.getItem("macroTotals");
+  const savedGoals = sessionStorage.getItem("dailyGoals");
+  const savedLog = sessionStorage.getItem("macroLog");
+
+  if (savedMacros) macroTotals = JSON.parse(savedMacros);
+  if (savedGoals) dailyGoals = JSON.parse(savedGoals);
+  if (savedLog) $("#macro-log-body").html(savedLog);
+
+  updateMacroTable();
+});
+
+// 🧹 Save macros & goals to sessionStorage (so they persist until tab closed)
+function saveSessionState() {
+  sessionStorage.setItem("macroTotals", JSON.stringify(macroTotals));
+  sessionStorage.setItem("dailyGoals", JSON.stringify(dailyGoals));
+  sessionStorage.setItem("macroLog", $("#macro-log-body").html());
+}
 
 async function searchCombined(event) {
   if (event.key !== 'Enter') return;
@@ -46,9 +63,6 @@ async function searchCombined(event) {
 }
 
 async function fetchCalorieData(query) {
-  //testing
-  //const url = `http://127.0.0.1:5001/calories_proxy?query=${encodeURIComponent(query)}`;
-  //production
   const url = `https://visionfit.onrender.com/calories_proxy?query=${encodeURIComponent(query)}`;
   const response = await fetch(url, { method: "GET" });
   if (!response.ok) throw new Error(`CalorieNinjas API request failed: ${response.statusText}`);
@@ -56,9 +70,6 @@ async function fetchCalorieData(query) {
 }
 
 async function analyzeFoodWithGemini(foodName, goal) {
-  //testing
-  //const GEMINI_PROXY_URL = "http://127.0.0.1:5001/gemini_proxy";
-  //production
   const GEMINI_PROXY_URL = "https://visionfit.onrender.com/gemini_proxy";
 
   const goalText = goal !== "unspecified"
@@ -111,41 +122,33 @@ async function analyzeFoodWithGemini(foodName, goal) {
   }
 }
 
-
 function addMacrosToTracker(item) {
   macroTotals.calories += parseFloat(item.calories) || 0;
   macroTotals.protein += parseFloat(item.protein_g) || 0;
   macroTotals.carbs += parseFloat(item.carbohydrates_total_g) || 0;
   macroTotals.fat += parseFloat(item.fat_total_g) || 0;
 
-  console.log("Macros added:", macroTotals);
   updateMacroTable();
   addFoodLogEntry(item);
+  saveSessionState(); // 🔹 persist after every addition
 }
 
 function updateMacroTable() {
-  console.log("Updating macro table with dailyGoals:", dailyGoals);
-
-  // Update consumed values
   $("#calories-consumed").text(macroTotals.calories.toFixed(1));
   $("#protein-consumed").text(macroTotals.protein.toFixed(1));
   $("#carbs-consumed").text(macroTotals.carbs.toFixed(1));
   $("#fat-consumed").text(macroTotals.fat.toFixed(1));
 
-  // Update daily goal values
   $("#calories-goal").text(dailyGoals.calories);
   $("#protein-goal").text(dailyGoals.protein);
   $("#carbs-goal").text(dailyGoals.carbs);
   $("#fat-goal").text(dailyGoals.fat);
 
-  // Update percentage completion
   $("#calories-percent").text(((macroTotals.calories / dailyGoals.calories) * 100).toFixed(1) + "%");
   $("#protein-percent").text(((macroTotals.protein / dailyGoals.protein) * 100).toFixed(1) + "%");
   $("#carbs-percent").text(((macroTotals.carbs / dailyGoals.carbs) * 100).toFixed(1) + "%");
   $("#fat-percent").text(((macroTotals.fat / dailyGoals.fat) * 100).toFixed(1) + "%");
-
 }
-
 
 function addFoodLogEntry(item) {
   const logEntry = `
@@ -184,7 +187,6 @@ function displayCombinedResults(calorieData, geminiResults) {
       div.style.width = "100%";
       div.style.boxSizing = "border-box";
 
-
       div.innerHTML = `
         <strong>${item.name}</strong>
         <div class="nutrition" style="margin-top:8px; margin-bottom:8px;">
@@ -208,14 +210,12 @@ function displayCombinedResults(calorieData, geminiResults) {
           cursor: pointer;
         " onclick='addMacrosToTracker(${JSON.stringify(item)})'>Add to Tracker</button>
       `;
-
       resultsDiv.appendChild(div);
     });
   } else {
     resultsDiv.innerHTML = "<p>No food items found.</p>";
   }
 }
-
 
 function submitGoal() {
   const goal = $("#goal").val()?.trim();
@@ -225,33 +225,19 @@ function submitGoal() {
     return;
   }
 
-  console.log("Goal submitted:", goal);
-
-  // Update dailyGoals based on selected goal
-  window.dailyGoals = goalSpecificMacros[goal] ? { ...goalSpecificMacros[goal] } : { ...defaultGoals };
-  console.log("Updated dailyGoals:", window.dailyGoals);
-
-  // Immediately update the macro table
+  dailyGoals = goalSpecificMacros[goal] ? { ...goalSpecificMacros[goal] } : { ...defaultGoals };
   updateMacroTable();
+  saveSessionState(); // 🔹 persist goal change
 
-  // Show the search container
   $(".search-container").show();
 
-  // Update stored info section so user can see their goal using jquery
   $("#stored-weight").text($("#weight").val()?.trim() + " " + $("#metric").val()?.trim() || "N/A");
-  //height is made up of height-feet and height-inches
   const heightFeet = $("#height-feet").val()?.trim() || "N/A";
   const heightInches = $("#height-inches").val()?.trim() || "N/A";
   const height = (heightFeet !== "N/A" ? heightFeet + "'" : "") + (heightInches !== "N/A" ? heightInches + '"' : "");
   $("#stored-height").text(height || "N/A");
   $("#stored-goal").text(goal.charAt(0).toUpperCase() + goal.slice(1) || "N/A");
-
-  
 }
 
-
-// Initialize macro table with default goals on page load
-console.log("Page loaded, initializing macro table with default goals");
 updateMacroTable();
-
 document.getElementById("combined-search-bar").addEventListener("keyup", searchCombined);
