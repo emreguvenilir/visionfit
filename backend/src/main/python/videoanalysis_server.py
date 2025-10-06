@@ -65,7 +65,7 @@ def analyze_lift_route():
     flip_flag = request.form.get('flip', 'false').lower() == 'true'
 
     # 5. Run analysis
-    results = analyze_squat_side(video_save_path, athlete_height_ft, debug=True, flip=flip_flag)
+    results = analyze_squat_side(video_save_path, athlete_height_ft, debug=False, flip=flip_flag)
 
 
     rep_speeds_px = results['rep_speeds']
