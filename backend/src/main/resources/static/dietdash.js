@@ -38,7 +38,7 @@ window.addEventListener("DOMContentLoaded", () => {
   if (savedGoals) dailyGoals = JSON.parse(savedGoals);
   if (savedLog) $("#macro-log-body").html(savedLog);
   if (savedHeightFeet && savedHeightInches) {
-    $("#stored-weight").text($("#weight").val()?.trim() + " " + ($("#metric").val()?.trim() || "N/A"));
+    $("#stored-weight").text(savedWeight + " " + savedMetric || "N/A");
     $("#stored-height").text(
       (savedHeightFeet !== "N/A" ? savedHeightFeet + "'" : "") +
       (savedHeightInches !== "N/A" ? savedHeightInches + '"' : "") || "N/A"
