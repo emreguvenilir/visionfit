@@ -28,10 +28,20 @@ window.addEventListener("DOMContentLoaded", () => {
   const savedMacros = sessionStorage.getItem("macroTotals");
   const savedGoals = sessionStorage.getItem("dailyGoals");
   const savedLog = sessionStorage.getItem("macroLog");
+  const savedHeightFeet = sessionStorage.getItem("height-feet");
+  const savedHeightInches = sessionStorage.getItem("height-inches");
+  const savedWeight = sessionStorage.getItem("weight");
+  const savedMetric = sessionStorage.getItem("metric");
+  const savedGoal = sessionStorage.getItem("goal");
 
   if (savedMacros) macroTotals = JSON.parse(savedMacros);
   if (savedGoals) dailyGoals = JSON.parse(savedGoals);
   if (savedLog) $("#macro-log-body").html(savedLog);
+  if (savedHeightFeet) $("#height-feet").val(savedHeightFeet);
+  if (savedHeightInches) $("#height-inches").val(savedHeightInches);
+  if (savedWeight) $("#weight").val(savedWeight);
+  if (savedMetric) $("#metric").val(savedMetric);
+  if (savedGoal) $("#goal").val(savedGoal);
 
   updateMacroTable();
 });
@@ -41,6 +51,12 @@ function saveSessionState() {
   sessionStorage.setItem("macroTotals", JSON.stringify(macroTotals));
   sessionStorage.setItem("dailyGoals", JSON.stringify(dailyGoals));
   sessionStorage.setItem("macroLog", $("#macro-log-body").html());
+  
+  sessionStorage.setItem("height-feet", $("#height-feet").val()?.trim() || "");
+  sessionStorage.setItem("height-inches", $("#height-inches").val()?.trim() || "");
+  sessionStorage.setItem("weight", $("#weight").val()?.trim() || "");
+  sessionStorage.setItem("metric", $("#metric").val()?.trim() || "");
+  sessionStorage.setItem("goal", $("#goal").val()?.trim() || "");
 }
 
 async function searchCombined(event) {
@@ -52,7 +68,7 @@ async function searchCombined(event) {
   try {
     const [calorieData, geminiResult] = await Promise.all([
       fetchCalorieData(query),
-      analyzeFoodWithGemini(query, document.getElementById("goal").value || "unspecified")
+      analyzeFoodWithGemini(query, document.getElementById("goal").value, $("#height-feet").val(), $("#height-inches").val(), $("#weight").val(), $("#metric").val() === "kg")
     ]);
     displayCombinedResults(calorieData, [geminiResult]);
   } catch (error) {
@@ -69,7 +85,7 @@ async function fetchCalorieData(query) {
   return await response.json();
 }
 
-async function analyzeFoodWithGemini(foodName, goal) {
+async function analyzeFoodWithGemini(foodName, goal, heightFeet, heightInches, weight, metric) {
   const GEMINI_PROXY_URL = "https://visionfit.onrender.com/gemini_proxy";
 
   const goalText = goal !== "unspecified"
@@ -84,11 +100,15 @@ async function analyzeFoodWithGemini(foodName, goal) {
       )
     : "an unspecified fitness goal";
 
-  const prompt = `Provide the following about ${foodName}:
-  1. A short sentence describing its main nutritional benefit.
+  const prompt = `You are a professional nutritionist. Provide the following for the food item "${foodName}":
+  1. A sentence describing its main nutritional benefit or downside.
   2. A sentence evaluating its suitability for ${goalText}.
-  3. A simple recipe that includes ${foodName} with basic ingredients and steps.`;
+  3. A short suggestion on the next meal to complement ${foodName}.
 
+  Athlete Information:
+  - Height: ${heightFeet} ft ${heightInches} in
+  - Weight: ${weight} ${metric ? "kg" : "lbs"}`;
+  
   try {
     const response = await fetch(GEMINI_PROXY_URL, {
       method: "POST",
