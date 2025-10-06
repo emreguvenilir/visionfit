@@ -37,8 +37,14 @@ window.addEventListener("DOMContentLoaded", () => {
   if (savedMacros) macroTotals = JSON.parse(savedMacros);
   if (savedGoals) dailyGoals = JSON.parse(savedGoals);
   if (savedLog) $("#macro-log-body").html(savedLog);
-  if (savedHeightFeet) $("#height-feet").val(savedHeightFeet);
-  if (savedHeightInches) $("#height-inches").val(savedHeightInches);
+  if (savedHeightFeet && savedHeightInches) {
+    $("#stored-weight").text($("#weight").val()?.trim() + " " + ($("#metric").val()?.trim() || "N/A"));
+    $("#stored-height").text(
+      (savedHeightFeet !== "N/A" ? savedHeightFeet + "'" : "") +
+      (savedHeightInches !== "N/A" ? savedHeightInches + '"' : "") || "N/A"
+    );
+    $("#stored-goal").text(savedGoal?.charAt(0).toUpperCase() + savedGoal?.slice(1) || "N/A");
+  }
   if (savedWeight) $("#weight").val(savedWeight);
   if (savedMetric) $("#metric").val(savedMetric);
   if (savedGoal) $("#goal").val(savedGoal);
