@@ -65,7 +65,7 @@ def analyze_lift_route():
     flip_flag = request.form.get('flip', 'false').lower() == 'true'
 
     # 5. Run analysis
-    results = analyze_squat_side(video_save_path, athlete_height_ft, debug=False, flip=flip_flag)
+    results = analyze_squat_side(video_save_path, athlete_height_ft, debug=True, flip=flip_flag)
 
 
     rep_speeds_px = results['rep_speeds']
@@ -78,11 +78,8 @@ def analyze_lift_route():
     avg_speed_mph = sum(rep_speeds_mph) / len(rep_speeds_mph) if rep_speeds_mph else 0.0
     max_speed_mph = max(rep_speeds_mph) if rep_speeds_mph else 0.0
 
-    # Fatigue (positive = slowdown, negative = speed-up)
     fatigue_index = 0.0
-    if len(rep_speeds_mph) >= 2 and rep_speeds_mph[0] > 0:
-        fatigue_index = 100.0 * (rep_speeds_mph[0] - rep_speeds_mph[-1]) / rep_speeds_mph[0]
-        fatigue_index = max(-50.0, min(100.0, fatigue_index))  # clamp
+    fatigue_index = results['fatigue_index']
 
     # Consistency (normalized 0–1)
     consistency = (

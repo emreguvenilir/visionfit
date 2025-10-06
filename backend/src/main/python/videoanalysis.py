@@ -6,11 +6,7 @@ import scipy.signal as signal
 from statistics import stdev
 import os
 
-
 def analyze_squat_side(video_path, athlete_height_ft, debug=False, flip=False):
-    import cv2
-    import numpy as np
-
     cap = cv2.VideoCapture(video_path)
     fps = cap.get(cv2.CAP_PROP_FPS)
     if fps <= 0 or fps > 120:
@@ -22,12 +18,34 @@ def analyze_squat_side(video_path, athlete_height_ft, debug=False, flip=False):
         print("Error: Cannot open video.")
         return
 
-    # Approximate height scaling for bar path → real distance conversion
-    athlete_height_px = 400.0
+    # --- Read first frame for setup ---
+    ret, first_frame = cap.read()
+    if not ret:
+        print("Error: Cannot read first frame.")
+        return
+    h0, w0 = first_frame.shape[:2]
+
+    # Auto-rotate if horizontal
+    if w0 > h0:
+        first_frame = cv2.rotate(first_frame, cv2.ROTATE_90_CLOCKWISE)
+        rotated = True
+    else:
+        rotated = False
+
+    frame_h, frame_w = first_frame.shape[:2]
+    athlete_height_px = frame_h * 0.6
     pixels_per_foot = athlete_height_px / athlete_height_ft
+    print(f"[📏 Scale] Athlete height ≈ {athlete_height_px:.1f}px → {pixels_per_foot:.2f} px/ft")
+
+    # Default ROI (center band)
+    roi_box = (int(frame_w * 0.15), int(frame_h * 0.10),
+               int(frame_w * 0.70), int(frame_h * 0.80))
+    print(f"[🎯 ROI Default] {roi_box}")
+
+    cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
     prev_gray = None
-    roi_box = None
     bar_y_trace = []
+    frame_count = 0
 
     print("Analyzing video..." + (" (debug mode ON)" if debug else ""))
 
@@ -35,22 +53,15 @@ def analyze_squat_side(video_path, athlete_height_ft, debug=False, flip=False):
         ret, frame = cap.read()
         if not ret:
             break
+        frame_count += 1
 
-        # Normalize size
-        frame = cv2.resize(frame, (900, 600))
-        frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
-
-        # ✅ Flip horizontally if recording from right side
+        if rotated:
+            frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
         if flip:
             frame = cv2.flip(frame, 1)
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         blurred = cv2.GaussianBlur(gray, (5, 5), 0)
-
-        if roi_box is None:
-            h, w = frame.shape[:2]
-            # Slightly adjusted ROI: more centered for flexibility
-            roi_box = (int(w * 0.25), int(h * 0.12), int(w * 0.50), int(h * 0.76))
 
         x, y, rw, rh = roi_box
         roi_now = blurred[y:y+rh, x:x+rw]
@@ -70,19 +81,19 @@ def analyze_squat_side(video_path, athlete_height_ft, debug=False, flip=False):
                 ys = np.arange(band.shape[0]).reshape(-1, 1)
                 y_centroid = float((ys * (band > 0)).sum() / (band > 0).sum())
                 bar_y_trace.append(y + y_centroid)
-
                 if debug:
                     cv2.circle(frame, (x + bar_x, int(y + y_centroid)), 6, (0, 255, 0), -1)
                     cv2.rectangle(frame, (x+band_left, y), (x+band_right, y+rh), (255, 0, 0), 1)
             else:
-                # Hold last valid value to avoid spikes
                 bar_y_trace.append(bar_y_trace[-1] if bar_y_trace else y + rh / 2)
 
         if debug:
-            cv2.rectangle(frame, (x, y), (x+rw, y+rh), (0, 255, 255), 2)
-            cv2.imshow("VisionFit Analyzer", frame)
+            # shrink window for viewing
+            display = cv2.resize(frame, (int(frame_w * 0.6), int(frame_h * 0.6)))
+            cv2.rectangle(display, (int(x*0.6), int(y*0.6)),
+                          (int((x+rw)*0.6), int((y+rh)*0.6)), (0, 255, 255), 2)
+            cv2.imshow("VisionFit Analyzer", display)
             if cv2.waitKey(1) & 0xFF == ord('q'):
-                print("⛔ Analysis manually stopped.")
                 break
 
         prev_gray = blurred.copy()
@@ -91,10 +102,8 @@ def analyze_squat_side(video_path, athlete_height_ft, debug=False, flip=False):
     if debug:
         cv2.destroyAllWindows()
 
-    print("✅ Analysis complete.")
+    print(f"✅ Analysis complete. Frames processed: {frame_count}")
     return process_bar_trace(bar_y_trace, fps, pixels_per_foot)
-
-
 
 def process_bar_trace(bar_y_trace, fps, pixels_per_foot):
     if len(bar_y_trace) < 3:
@@ -110,23 +119,13 @@ def process_bar_trace(bar_y_trace, fps, pixels_per_foot):
             "rep_speeds": []
         }
 
-    # --- Position smoothing ---
     pos = np.array(bar_y_trace, dtype=np.float32)
     pos_smoothed = cv2.blur(pos.reshape(-1, 1), (9, 1)).flatten()
-
-    # --- Velocity (pixels / frame) ---
     vel = np.gradient(pos_smoothed)
-
-    # 🧹 1) Median filter kills single-frame spikes
     vel = cv2.medianBlur(vel.astype(np.float32).reshape(-1, 1), 5).flatten()
-
-    # 🪶 2) Light blur for consistency
     vel_smoothed = cv2.blur(vel.reshape(-1, 1), (7, 1)).flatten()
-
-    # 🚦 3) Clip to biomechanically realistic range (–15 ↔ 15 px/frame)
     vel_smoothed = np.clip(vel_smoothed, -15, 15)
 
-    # --- Rep segmentation (valleys = bottom of squats) ---
     valleys, _ = signal.find_peaks(-pos_smoothed, distance=max(5, int(fps / 3)))
     rep_boundaries = valleys.tolist()
 
@@ -140,32 +139,26 @@ def process_bar_trace(bar_y_trace, fps, pixels_per_foot):
     avg_px = float(np.mean(rep_speeds_px)) if rep_speeds_px else 0.0
     max_px = float(np.max(rep_speeds_px)) if rep_speeds_px else 0.0
 
-    # --- Fatigue logic: positive = slowdown, negative = speed-up ---
     fatigue = 0.0
-    if len(rep_speeds_px) >= 2 and rep_speeds_px[0] > 0:
-        fatigue = 100.0 * (rep_speeds_px[0] - rep_speeds_px[-1]) / rep_speeds_px[0]
-        fatigue = max(-50.0, min(100.0, fatigue))
-
-    # --- Consistency (1 – coefficient of variation) ---
-    if len(rep_speeds_px) > 1 and avg_px > 0:
-        cons = 1.0 - (stdev(rep_speeds_px) / avg_px)
-        consistency = float(min(1.0, max(0.0, cons)))
+    # find max rep speed
+    if rep_speeds_px:
+        fastest = max(rep_speeds_px)
+        last = rep_speeds_px[-1]
+        fatigue = (fastest - last) / fastest * 100.0
+        fatigue = round(fatigue, 1)
     else:
-        consistency = 1.0 if rep_speeds_px else 0.0
+        fatigue = 0.0
 
-    # --- Time under tension (frames above ½ mean velocity magnitude) ---
     abs_vel = np.abs(vel_smoothed)
     tut_frames = int(np.sum(abs_vel > 0.5 * np.mean(abs_vel))) if abs_vel.size else 0
     tut_seconds = round(tut_frames / fps, 2)
 
-    # Additional smoothing to flatten small jitters in single-rep velocity
     vel_smoothed = signal.savgol_filter(vel_smoothed, window_length=15, polyorder=3, mode='interp')
 
     return {
         "avg_bar_speed_px_per_frame": avg_px,
         "max_bar_speed_px_per_frame": max_px,
         "fatigue_index": fatigue,
-        "consistency_score": consistency,
         "time_under_tension": tut_seconds,
         "velocity_over_time_px_per_frame": vel_smoothed.tolist(),
         "rep_boundaries": rep_boundaries,

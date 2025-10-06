@@ -165,8 +165,9 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 60000);
-            //use the line below for local testing
+            // Testing
             //const response = await fetch('http://127.0.0.1:5001/analyze_lift', {
+            // Production
             const response = await fetch('https://visionfit.onrender.com/analyze_lift', {
                 method: 'POST',
                 body: formData,
@@ -258,6 +259,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             liftCount++;
             loadingModal.style.display = 'none';
+
             closeModal();
 
         } catch (error) {
