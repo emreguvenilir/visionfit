@@ -13,7 +13,7 @@ VisionFit applies computer vision techniques to analyze training videos and extr
 By tracking barbell and body motion, the system calculates velocity, power, fatigue, and consistency.
 A web-based dashboard then visualizes these results and provides AI-generated analysis for the athlete.
 
-# Core Features
+## Core Features
 
 Computer vision lift analysis using OpenCV
 
