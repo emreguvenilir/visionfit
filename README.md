@@ -23,15 +23,15 @@ AI-generated lift feedback
 
 Athlete dashboard with lift history, visual graphs, and performance summaries
 
-Full-stack architecture connecting frontend, backend, and database components
+Diet dashboard with a daily macro tracker, food log, and AI-analysis on food for a given goal
 
 ## Tech Stack
 
-Frontend: React, JavaScript, HTML, CSS
-Backend: Python (Flask), Java (Spring Boot microservices)
-Database: MySQL
-Computer Vision: OpenCV, NumPy, SciPy
-AI Integration: Gemini API
+Frontend: JavaScript, HTML, CSS, jQuery
+Backend: RestAPI built with Python (Flask API for CV + AI integration), Java (Spring Boot microservices)
+Computer Vision & Data Processing: OpenCV, NumPy, SciPy, Matplotlib, Signal Processing
+AI Integration: Gemini API, CalorieNinjas API
+Environment & Runtime: Flask-CORS, Requests, python-dotenv
 
 ## Team
 
